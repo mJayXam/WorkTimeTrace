@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:latest
-    container_name: my-postgres-container
+    container_name: postgresDB
     ports:
       - "5432:5432"
     environment:
@@ -13,3 +13,11 @@ services:
       ## neu ##
     volumes:
         - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
