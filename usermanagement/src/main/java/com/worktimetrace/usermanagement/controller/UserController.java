@@ -1,48 +1,40 @@
 package com.worktimetrace.usermanagement.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.worktimetrace.usermanagement.UserService;
-import com.worktimetrace.usermanagement.model.User;
+
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class UserController {
 
-    private final UserService userService;
+    private final JdbcTemplate jdbcTemplate;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestParam String username, @RequestParam String password) {
-        User user = userService.registerUser(username, password);
-        return ResponseEntity.ok("User registered successfully");
-    }
+    public String createUser() {
+        try {
+            // Testdaten
+            String username = "TestUser";
+            String passwordSalt = "TestSalt";
+            String passwordHash = "TestHash";
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
-        boolean isValid = userService.validateUser(username, password);
+            // SQL-Statement zum Einfügen der Daten in die Tabelle
+            String sql = "INSERT INTO users (username, password_salt, password_hash) VALUES (?, ?, ?)";
 
-        if (isValid) {
-            // Implement token generation and return it in the response
-            String token = generateToken(username);
-            return ResponseEntity.ok("Login successful. Token: " + token);
-        } else {
-            return ResponseEntity.status(401).body("Invalid credentials");
+            // Daten in die Tabelle einfügen
+            jdbcTemplate.update(sql, username, passwordSalt, passwordHash);
+
+            return "Benutzer erfolgreich erstellt!";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Fehler beim Erstellen des Benutzers: " + e.getMessage();
         }
-    }
-
-    @GetMapping("/logout")
-    public ResponseEntity<String> logout() {
-        // Implement logout logic (if needed)
-        return ResponseEntity.ok("Logout successful");
-    }
-
-    private String generateToken(String username) {
-        // Implement token generation logic here (e.g., using JWT)
-        return "sampleToken";
     }
 }

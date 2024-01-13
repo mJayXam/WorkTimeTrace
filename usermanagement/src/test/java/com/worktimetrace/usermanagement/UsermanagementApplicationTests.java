@@ -1,4 +1,4 @@
-package com.worktimetrace.usermanagement;
+package com.WorkTimeTrace.usermanagement;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
