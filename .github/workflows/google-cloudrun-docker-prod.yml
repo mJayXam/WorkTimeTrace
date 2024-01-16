@@ -46,8 +46,6 @@ name: Build and Deploy Prod to Cloud Run
 
 on:
   workflow_dispatch: # Trigger only on manual workflow dispatch
-  push:
-    branches: [ "main" ]
 
 env:
   PROJECT_ID: YOUR_PROJECT_ID # TODO: update Google Cloud project id
