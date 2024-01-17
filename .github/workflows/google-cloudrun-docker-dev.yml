@@ -50,7 +50,7 @@ on:
 
 env:
   PROJECT_ID: vaulted-art-327315 
-  GAR_LOCATION: europe-west3-docker.pkg.dev/vaulted-art-327315/worktimetraceregistry
+  GAR_LOCATION: europe-west3 #-docker.pkg.dev/vaulted-art-327315/worktimetraceregistry
   REGION: us-central1
 
 jobs:
