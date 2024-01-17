@@ -45,8 +45,9 @@
 name: Build and Deploy Dev to Cloud Run
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch: # Trigger only on manual workflow dispatch
+  #push:
+  #  branches: [ "main" ]
 
 env:
   PROJECT_ID: vaulted-art-327315 
