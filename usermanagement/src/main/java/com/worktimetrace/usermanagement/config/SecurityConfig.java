@@ -34,17 +34,29 @@ public class SecurityConfig {
         return provider::authenticate;
     }
 
-    @Bean
+/*     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/user/login", "/swagger-ui/*", "/user/register").permitAll()
+                        .requestMatchers("/user/login", "/swagger-ui/*", "/user/register", "/user/{username}").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(withDefaults())
                 .formLogin(withDefaults());
         return http.build();
-    }
+    } */
+
+    @Bean
+SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests((authorize) -> authorize
+                    .anyRequest().permitAll())
+            .httpBasic(withDefaults())
+            .formLogin(withDefaults());
+    return http.build();
+}
+
 
     @Bean
     InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
