@@ -69,8 +69,9 @@ jobs:
 
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v0'
+        uses: 'google-github-actions/auth@v2.0.1'
         with:
+          token_format: 'access_token'
           workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
           service_account: '${{ secrets.SA_EMAIL }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
 
