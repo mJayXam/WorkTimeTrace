@@ -86,22 +86,22 @@ jobs:
 
       - name: Build and Push Container - Frontend
         run: |
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}" ./frontend
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/frontend:${{ github.sha }}" ./frontend
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}"
 
       - name: Build and Push Container - UserManagement
         run: |
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}" ./usermanagement
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/usermanagement:${{ github.sha }}" ./usermanagement
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}"
 
       - name: Build and Push Container - TimeManagement
         run: |
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}" ./timemanagement
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/timemanagement:${{ github.sha }}" ./timemanagement
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}"
 
       - name: Build and Push Container - PdfExport
         run: |
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}" ./pdfexport
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/pdfexport:${{ github.sha }}" ./pdfexport
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry:${{ github.sha }}"
 
       # END - Docker auth and build
