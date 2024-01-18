@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WorkTimeTrace</title>
+    <link rel="stylesheet" type="text/css" href="/css/body.css" th:href="@{/css/body.css}">
+    <link rel="stylesheet" type="text/css" href="/css/calendar.css" th:href="@{/css/calendar.css}">
+    <link rel="stylesheet" type="text/css" href="/css/overview.css" th:href="@{/css/overview.css}">
+</head>
+
+<body class="body">
+
+    <div class="sidebar">
+        <h2 class="sidebarTitle">WorkTimeTrace</h2>
+    </div>
+
+    <div class="mainContent">
+        <div class="mainContentLayout">
+            <header>
+                <h1>Januar - 2024</h1>
+            </header>
+
+            <main>
+                <div class="calendarView">
+                    <div class="calendar">
+                        <div class="calendarDays">
+                            <div class="calendarRowDays">
+                                <div class="calendarDayMo">
+                                    <p class="dayMo">Mo</p>
+                                </div>
+                                <div class="calendarDayDi">
+                                    <p class="days">Di</p>
+                                </div>
+                                <div class="calendarDayMi">
+                                    <p class="days">Mi</p>
+                                </div>
+                                <div class="calendarDayDo">
+                                    <p class="days">Do</p>
+                                </div>
+                                <div class="calendarDayFr">
+                                    <p class="days">Fr</p>
+                                </div>
+                                <div class="calendarDaySa">
+                                    <p class="days">Sa</p>
+                                </div>
+                                <div class="calendarDaySo">
+                                    <p class="daySo">So</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendarWeek1">
+                            <div class="calendarRows">
+                                <div class="calendarMo">
+                                    <p id="posDay1">1</p>
+                                    <p id="pos1">-</p>
+                                </div>
+                                <div class="calendarDi">
+                                    <p id="posDay2">2</p>
+                                    <p id="pos2">-</p>
+                                </div>
+                                <div class="calendarMi">
+                                    <p id="posDay3">3</p>
+                                    <p id="pos3">-</p>
+                                </div>
+                                <div class="calendarDo">
+                                    <p id="posDay4">4</p>
+                                    <p id="pos4">-</p>
+                                </div>
+                                <div class="calendarFr">
+                                    <p id="posDay5">5</p>
+                                    <p id="pos5">-</p>
+                                </div>
+                                <div class="calendarSa">
+                                    <p id="posDay6">6</p>
+                                    <p id="pos6">-</p>
+                                </div>
+                                <div class="calendarSo">
+                                    <p id="posDay7">7</p>
+                                    <p id="pos7">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendarWeek2">
+                            <div class="calendarRows">
+                                <div class="calendarMo">
+                                    <p id="posDay8">8</p>
+                                    <p id="pos8">-</p>
+                                </div>
+                                <div class="calendarDi">
+                                    <p id="posDay9">9</p>
+                                    <p id="pos9">-</p>
+                                </div>
+                                <div class="calendarMi">
+                                    <p id="posDay10">10</p>
+                                    <p id="pos10">-</p>
+                                </div>
+                                <div class="calendarDo">
+                                    <p id="posDay11">11</p>
+                                    <p id="pos11">-</p>
+                                </div>
+                                <div class="calendarFr">
+                                    <p id="posDay12">12</p>
+                                    <p id="pos12">-</p>
+                                </div>
+                                <div class="calendarSa">
+                                    <p id="posDay13">13</p>
+                                    <p id="pos13">-</p>
+                                </div>
+                                <div class="calendarSo">
+                                    <p id="posDay14">14</p>
+                                    <p id="pos14">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendarWeek3">
+                            <div class="calendarRows">
+                                <div class="calendarMo">
+                                    <p id="posDay15">15</p>
+                                    <p id="pos15">-</p>
+                                </div>
+                                <div class="calendarDi">
+                                    <p id="posDay16">16</p>
+                                    <p id="pos16">-</p>
+                                </div>
+                                <div class="calendarMi">
+                                    <p id="posDay17">17</p>
+                                    <p id="pos17">-</p>
+                                </div>
+                                <div class="calendarDo">
+                                    <p id="posDay18">18</p>
+                                    <p id="pos18">-</p>
+                                </div>
+                                <div class="calendarFr">
+                                    <p id="posDay19">19</p>
+                                    <p id="pos19">-</p>
+                                </div>
+                                <div class="calendarSa">
+                                    <p id="posDay20">20</p>
+                                    <p id="pos20">-</p>
+                                </div>
+                                <div class="calendarSo">
+                                    <p id="posDay21">21</p>
+                                    <p id="pos21">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendarWeek4">
+                            <div class="calendarRows">
+                                <div class="calendarMo">
+                                    <p id="posDay22">22</p>
+                                    <p id="pos22">-</p>
+                                </div>
+                                <div class="calendarDi">
+                                    <p id="posDay23">23</p>
+                                    <p id="pos23">-</p>
+                                </div>
+                                <div class="calendarMi">
+                                    <p id="posDay24">24</p>
+                                    <p id="pos24">-</p>
+                                </div>
+                                <div class="calendarDo">
+                                    <p id="posDay25">25</p>
+                                    <p id="pos25">-</p>
+                                </div>
+                                <div class="calendarFr">
+                                    <p id="posDay26">26</p>
+                                    <p id="pos26">-</p>
+                                </div>
+                                <div class="calendarSa">
+                                    <p id="posDay27">27</p>
+                                    <p id="pos27">-</p>
+                                </div>
+                                <div class="calendarSo">
+                                    <p id="posDay28">28</p>
+                                    <p id="pos28">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendarWeek5">
+                            <div class="calendarRows">
+                                <div class="calendarMo">
+                                    <p id="posDay29">29</p>
+                                    <p id="pos29">-</p>
+                                </div>
+                                <div class="calendarDi">
+                                    <p id="posDay30">30</p>
+                                    <p id="pos30">-</p>
+                                </div>
+                                <div class="calendarMi">
+                                    <p id="posDay31">31</p>
+                                    <p id="pos31">-</p>
+                                </div>
+                                <div class="calendarDo">
+                                    <p id="posDay32" style="color: gray;">1</p>
+                                    <p id="pos32">-</p>
+                                </div>
+                                <div class="calendarFr">
+                                    <p id="posDay33" style="color: gray;">2</p>
+                                    <p id="pos33">-</p>
+                                </div>
+                                <div class="calendarSa">
+                                    <p id="posDay34" style="color: gray;">3</p>
+                                    <p id="pos34">-</p>
+                                </div>
+                                <div class="calendarSo">
+                                    <p id="posDay35" style="color: gray;">4</p>
+                                    <p id="pos35">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="overviewView">
+                    <div class="overview">
+                        <div class="overviewTitle">
+                            <h2>Monatsübersicht</h2>
+                        </div>
+                        <div class="overviewWeeks">
+
+                        </div>
+                        <div class="overviewWeek1">
+
+                        </div>
+                        <div class="overviewWeek2">
+
+                        </div>
+                        <div class="overviewWeek3">
+
+                        </div>
+                        <div class="overviewWeek4">
+
+                        </div>
+                        <div class="overviewWeek5">
+
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer>
+                <p class="copyright">&copy; 2024 WorkTimeTrace</p>
+            </footer>
+        </div>
+    </div>
+
+</body>
+
+</html>
