@@ -52,7 +52,10 @@ on:
 
 env:
   PROJECT_ID: vaulted-art-327315
-  SERVICE: frontendservice
+  SERVICE_FRONTEND: frontendservice
+  SERVICE_USERMANAGEMENT: usermanagementservice
+  SERVICE_TIMEMANAGEMENT: timemanagementservice
+  SERVICE_PDFEXPORT: pdfexportservice
   REGION: us-central1
 
 jobs:
@@ -82,16 +85,45 @@ jobs:
       #   with:
       #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-      - name: Deploy to Cloud Run
-        id: deploy
+      - name: Deploy Frontend to Cloud Run
+        id: deployfrontend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           project_id: ${{ env.PROJECT_ID }}
-          service: ${{ env.SERVICE }}
+          service: ${{ env.SERVICE_FRONTEND }}
           region: ${{ env.REGION }}
           # NOTE: If required, update to the appropriate source folder
           source: ./frontend
 
+      - name: Deploy UserManagement to Cloud Run
+        id: deployusermanagement
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service: ${{ env.SERVICE_USERMANAGEMENT }}
+          region: ${{ env.REGION }}
+          # NOTE: If required, update to the appropriate source folder
+          source: ./usermanagement
+
+      - name: Deploy TimeManagement to Cloud Run
+        id: deploytimemanagement
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service: ${{ env.SERVICE_TIMEMANAGEMENT }}
+          region: ${{ env.REGION }}
+          # NOTE: If required, update to the appropriate source folder
+          source: ./timemanagement
+
+      - name: Deploy PdfExport to Cloud Run
+        id: deploypdfexport
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service: ${{ env.SERVICE_PDFEXPORT }}
+          region: ${{ env.REGION }}
+          # NOTE: If required, update to the appropriate source folder
+          source: ./pdfexport
       # If required, use the Cloud Run url output in later steps
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+      #- name: Show Output
+      #  run: echo ${{ steps.deploy.outputs.url }}
