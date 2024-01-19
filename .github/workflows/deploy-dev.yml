@@ -7,9 +7,9 @@ on:
       - completed
 
 env:
-PROJECT_ID: vaulted-art-327315 
-GAR_LOCATION: europe-west3
-REGION: us-central1
+    PROJECT_ID: vaulted-art-327315 
+    GAR_LOCATION: europe-west3
+    REGION: us-central1
 
 jobs:
   deploy:
