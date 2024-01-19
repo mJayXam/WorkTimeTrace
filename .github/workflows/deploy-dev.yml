@@ -20,7 +20,7 @@ jobs:
 
       - name: Deploy to Cloud Run - Frontend
         id: deploy-frontend
-        uses: google-github-actions/deploy-cloudrun@v0
+        uses: google-github-actions/deploy-cloudrun@v2.0.0
         with:
           service: frontendservice
           region: ${{ env.REGION }}
