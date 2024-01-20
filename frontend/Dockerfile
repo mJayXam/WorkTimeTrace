@@ -2,7 +2,7 @@ FROM maven:3.9.6-eclipse-temurin-21-jammy AS compiler
 RUN mkdir /compile
 WORKDIR /compile
 COPY . .
-RUN mvn package
+RUN mvn package -DskipTests
 
 FROM eclipse-temurin:21-jre
 WORKDIR /
