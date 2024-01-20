@@ -7312,6 +7312,22 @@ textarea.form-control-lg {
   max-height: 100% !important;
 }
 
+.vh-10 {
+  height: 10vh !important;
+}
+
+.vh-25 {
+  height: 25vh !important;
+}
+
+.vh-50 {
+  height: 50vh !important;
+}
+
+.vh-75 {
+  height: 75vh !important;
+}
+
 .vh-100 {
   height: 100vh !important;
 }
