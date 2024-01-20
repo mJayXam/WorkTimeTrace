@@ -25,8 +25,8 @@ public class Datum {
         return day + "." + month + "." + year;
     }
 
-    public static ArrayList<Datum> daysInMonthArray(LocalDate date) {
-        ArrayList<Datum> daysInMonthArray = new ArrayList<>();
+    public static ArrayList<LocalDate> daysInMonthArray(LocalDate date) {
+        ArrayList<LocalDate> daysInMonthArray = new ArrayList<>();
         int viewSpace = 0;
 
         LocalDate previousMonth = date.minusMonths(1).withDayOfMonth(1);
@@ -37,90 +37,42 @@ public class Datum {
         int dayOfWeek = dayOfMonth.getDayOfWeek().getValue();
         for(int i = 1; i < dayOfWeek; i++)
         {
-            LocalDate datum = endOfPreviousMonth.minusDays(dayOfWeek - i - 1);
-            daysInMonthArray.add(new Datum(datum.getDayOfMonth(), datum.getMonthValue(), datum.getYear()));
+            daysInMonthArray.add(endOfPreviousMonth.minusDays(dayOfWeek - i - 1));
             viewSpace += 1;
         }
 
         while(viewSpace < 35)
         {
-            daysInMonthArray.add(new Datum(dayOfMonth.getDayOfMonth(), dayOfMonth.getMonthValue(), dayOfMonth.getYear()));
+            daysInMonthArray.add(dayOfMonth);
             dayOfMonth = dayOfMonth.plusDays(1);
             viewSpace += 1;
         }
         return  daysInMonthArray;
     }
 
-    public static ArrayList<Datum> getFirstWeekOfGivenMonth(ArrayList <Datum> daysInMonth) {
-        ArrayList<Datum> ret = new ArrayList<>();
+    public static Datum[][] fillWeeksInMonthArray(LocalDate date) {
+        Datum[][] ret = new Datum[5][7];
         int pos = 0;
-        for(Datum date : daysInMonth) {
-            pos++;
-            ret.add(date);
-            if (pos >= 7) {
-                break;
+        ArrayList<LocalDate> daysInMonthArray = daysInMonthArray(date);
+        for(LocalDate datum : daysInMonthArray){
+            if(pos < 7){
+                ret[0][pos] = new Datum(datum);
             }
+            if(pos >= 7 && pos < 14) {
+                ret[1][pos - 7] = new Datum(datum);
+            }
+            if(pos >= 14 && pos < 21) {
+                ret[2][pos - 14] = new Datum(datum);
+            }
+            if(pos >= 21 && pos < 28) {
+                ret[3][pos - 21] = new Datum(datum);
+            }
+            if(pos >= 28 && pos < 35) {
+                ret[4][pos - 28] = new Datum(datum);
+            }
+            pos++;
         }
         return ret;
     }
 
-    public static ArrayList<Datum> getSeccondWeekOfGivenMonth(ArrayList <Datum> daysInMonth) {
-        ArrayList<Datum> ret = new ArrayList<>();
-        int pos = 0;
-        for(Datum date : daysInMonth) {
-            if (pos >= 7) {
-                ret.add(date);
-            }
-            pos++;
-            if (pos >= 14) {
-                break;
-            }
-        }
-        return ret;
-    }
-
-    public static ArrayList<Datum> getThirdWeekOfGivenMonth(ArrayList <Datum> daysInMonth) {
-        ArrayList<Datum> ret = new ArrayList<>();
-        int pos = 0;
-        for(Datum date : daysInMonth) {
-            if (pos >= 14) {
-                ret.add(date);
-            }
-            pos++;
-            if (pos >= 21) {
-                break;
-            }
-        }
-        return ret;
-    }
-
-    public static ArrayList<Datum> getFourthWeekOfGivenMonth(ArrayList <Datum> daysInMonth) {
-        ArrayList<Datum> ret = new ArrayList<>();
-        int pos = 0;
-        for(Datum date : daysInMonth) {
-            if (pos >= 21) {
-                ret.add(date);
-            }
-            pos++;
-            if (pos >= 28) {
-                break;
-            }
-        }
-        return ret;
-    }
-
-    public static ArrayList<Datum> getFifthWeekOfGivenMonth(ArrayList <Datum> daysInMonth) {
-        ArrayList<Datum> ret = new ArrayList<>();
-        int pos = 0;
-        for(Datum date : daysInMonth) {
-            if (pos >= 28) {
-                ret.add(date);
-            }
-            pos++;
-            if (pos >= 35) {
-                break;
-            }
-        }
-        return ret;
-    }
 }

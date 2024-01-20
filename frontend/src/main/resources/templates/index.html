@@ -109,40 +109,16 @@
 
                 <main class="mb-5">
                     <div th:if="${kalender}" class="h-100" style="display: block;">
-                        <div class="borderSchema w-100 h-100 flexBox-column-layout">
+                        <div class="borderSchema w-100 h-100 flexBox-column-layout mt-3">
                             <div class="borderSchemaBottom h-100 flexBox-row-layout mt-3 mx-3">
                                 <div th:each= "days :${kalenderTage}" class="w-100 mx-2">
                                     <p th:text="${days}"class="fontSizeMed-Bold"></p>
                                 </div>
                             </div>
-                            <div class="h-100 flexBox-row-layout m-3">
-                                <div th:each="date :${ersteWoche}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:text="${date.day}"></p>
-                                    <p th:id= "pos + ${date.day}"></p>
-                                </div>
-                            </div>
-                            <div class="h-100 flexBox-row-layout m-3">
-                                <div th:each= "date:${zweiteWoche}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:text="${date.day}"></p>
-                                    <p th:id= "pos + ${date.day}"></p>
-                                </div>
-                            </div>
-                            <div class="h-100 flexBox-row-layout m-3">
-                                <div th:each= "date:${dritteWoche}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:text="${date.day}"></p>
-                                    <p th:id= "pos + ${date.day}"></p>
-                                </div>
-                            </div>
-                            <div class="h-100 flexBox-row-layout m-3">
-                                <div th:each= "date:${vierteWoche}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:text="${date.day}"></p>
-                                    <p th:id= "pos + ${date.day}"></p>
-                                </div>
-                            </div>
-                            <div class="h-100 flexBox-row-layout m-3">
-                                <div th:each= "date:${fuenfteWoche}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:text="${date.day}"></p>
-                                    <p th:id= "pos + ${date.day}"></p>
+                            <div th:each="week, weekStat :${datum}" class="h-100 flexBox-row-layout m-3">
+                                <div th:each="day, dayStat :${week}" class="w-100 borderSchema vh-10 mx-1">
+                                    <p th:id= "dayNr + ${day.day}" th:text="${day.day}"></p>
+                                    <p th:id= "pos + ${day.day}"></p>
                                 </div>
                             </div>
                         </div>
