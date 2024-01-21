@@ -8,7 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.worktimetrace.frontend.Models.Datum;
+import com.worktimetrace.frontend.Models.Calender;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -23,16 +25,28 @@ public class UIController {
     }
 
     @GetMapping("/Kalender")
-    public String showKalenderView(Model model) {
+    public String showKalenderView(@RequestParam(name = "month", required = false) int parameter, Model model) {
         String [] dayStrings = {"Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"};
         ArrayList<String> days = new ArrayList<>(Arrays.asList(dayStrings));
 
-        model.addAttribute("kalender", true);
-        model.addAttribute("kalenderTage", days);
-        model.addAttribute("datum", Datum.fillWeeksInMonthArray(LocalDate.now()));
+        if(parameter == 0){
+            model.addAttribute("kalender", true);
+            model.addAttribute("kalenderTage", days);
+            model.addAttribute("datum", Calender.fillWeeksInMonthArray(LocalDate.now()));
+            model.addAttribute("title", new Calender(LocalDate.now()).getMonthYear());
+            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
+            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
+        } else {
+            model.addAttribute("kalender", true);
+            model.addAttribute("kalenderTage", days);
+            model.addAttribute("datum", Calender.fillWeeksInMonthArray(LocalDate.now().plusMonths(parameter)));
+            model.addAttribute("title", new Calender(LocalDate.now().plusMonths(parameter)).getMonthYear());
+            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
+            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
+        }
+        
         return "index";
     }
-    
 
     @GetMapping("/Monatsuebersicht")
     public String showMonatsuebersichtView(Model model) {

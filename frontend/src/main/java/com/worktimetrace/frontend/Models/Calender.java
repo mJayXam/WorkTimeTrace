@@ -1,28 +1,70 @@
 package com.worktimetrace.frontend.Models;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Locale;
 
-public class Datum {
-    public int day;
-    public int month;
-    public int year;
+public class Calender {
+    private int day;
+    private int month;
+    private int year;
+    private String monthYear;
 
-    public Datum(int day, int month, int year) {
+    public Calender(int day, int month, int year) {
         this.day = day;
         this.month = month;
         this.year = year;
     }
 
-    public Datum(LocalDate date) {
+    public Calender(LocalDate date) {
         this.day = date.getDayOfMonth();
         this.month = date.getMonthValue();
         this.year = date.getYear();
+        this.monthYear = getMonthYearFromDate(date);
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String getMonthYear() {
+        return monthYear;
+    }
+
+    public void setMonthYear(String monthYear) {
+        this.monthYear = monthYear;
     }
 
     @Override
     public String toString() {
         return day + "." + month + "." + year;
+    }
+
+    private String getMonthYearFromDate(LocalDate date)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM - yyyy", Locale.GERMAN);
+        return date.format(formatter);
     }
 
     public static ArrayList<LocalDate> daysInMonthArray(LocalDate date) {
@@ -41,7 +83,7 @@ public class Datum {
             viewSpace += 1;
         }
 
-        while(viewSpace < 35)
+        while(viewSpace < 42)
         {
             daysInMonthArray.add(dayOfMonth);
             dayOfMonth = dayOfMonth.plusDays(1);
@@ -50,29 +92,31 @@ public class Datum {
         return  daysInMonthArray;
     }
 
-    public static Datum[][] fillWeeksInMonthArray(LocalDate date) {
-        Datum[][] ret = new Datum[5][7];
+    public static Calender[][] fillWeeksInMonthArray(LocalDate date) {
+        Calender[][] ret = new Calender[6][7];
         int pos = 0;
         ArrayList<LocalDate> daysInMonthArray = daysInMonthArray(date);
         for(LocalDate datum : daysInMonthArray){
             if(pos < 7){
-                ret[0][pos] = new Datum(datum);
+                ret[0][pos] = new Calender(datum);
             }
             if(pos >= 7 && pos < 14) {
-                ret[1][pos - 7] = new Datum(datum);
+                ret[1][pos - 7] = new Calender(datum);
             }
             if(pos >= 14 && pos < 21) {
-                ret[2][pos - 14] = new Datum(datum);
+                ret[2][pos - 14] = new Calender(datum);
             }
             if(pos >= 21 && pos < 28) {
-                ret[3][pos - 21] = new Datum(datum);
+                ret[3][pos - 21] = new Calender(datum);
             }
             if(pos >= 28 && pos < 35) {
-                ret[4][pos - 28] = new Datum(datum);
+                ret[4][pos - 28] = new Calender(datum);
+            }
+            if(pos >= 35 && pos < 42) {
+                ret[5][pos - 35] = new Calender(datum);
             }
             pos++;
         }
         return ret;
     }
-
 }

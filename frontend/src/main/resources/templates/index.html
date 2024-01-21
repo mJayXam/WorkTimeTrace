@@ -7,8 +7,9 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>WorkTimeTrace</title>
-    <!-- Favicon-->
+    <!-- Icons-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <!-- Core theme CSS (includes Bootstrap)-->
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="/css/eigeneStyles.css">
@@ -26,7 +27,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" th:href="@{/}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{Kalender}">Kalender</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{Kalender?month=0}">Kalender</a></li>
                     <li class="nav-item"><a class="nav-link" th:href="@{Monatsuebersicht}">Monatsübersicht</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
@@ -103,13 +104,17 @@
         </div>
         <div class="container">
             <div class="text-center mt-5">
-                <header th:if="${kalender}" class="text-start">
-                    <h1>Januar - 2024</h1>
+                <header th:if="${kalender}" class="text-start" style="display:flex; justify-content: space-between; align-items: flex-end;">
+                    <h1 th:text="${title}"></h1>
                 </header>
 
                 <main class="mb-5">
+                    <ul class="mb-0" style="display: flex; list-style-type: none; justify-content: flex-end;">
+                        <li class="borderSchema me-2 pt-1 pe-2 ps-2 pb-1"><a th:href="@{${previousMonthUrl}}"><i class="fas fa-arrow-left" style="color: black;"></i></a></li>
+                        <li class="borderSchema pt-1 pe-2 ps-2 pb-1"><a th:href="@{${nextMonthUrl}}"><i class="fas fa-arrow-right" style="color: black;"></i></a></li>
+                    </ul>
                     <div th:if="${kalender}" class="h-100" style="display: block;">
-                        <div class="borderSchema w-100 h-100 flexBox-column-layout mt-3">
+                        <div class="borderSchema w-100 h-100 flexBox-column-layout mt-1">
                             <div class="borderSchemaBottom h-100 flexBox-row-layout mt-3 mx-3">
                                 <div th:each= "days :${kalenderTage}" class="w-100 mx-2">
                                     <p th:text="${days}"class="fontSizeMed-Bold"></p>
@@ -117,8 +122,8 @@
                             </div>
                             <div th:each="week, weekStat :${datum}" class="h-100 flexBox-row-layout m-3">
                                 <div th:each="day, dayStat :${week}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:id= "dayNr + ${day.day}" th:text="${day.day}"></p>
-                                    <p th:id= "pos + ${day.day}"></p>
+                                    <p th:id= "dayNr + ${day.getDay()}" th:text="${day.getDay()}"></p>
+                                    <p th:id= "pos + ${day.getDay()}"></p>
                                 </div>
                             </div>
                         </div>
