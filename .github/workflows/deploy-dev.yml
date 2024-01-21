@@ -40,7 +40,14 @@ jobs:
                 region: ${{ env.REGION }}
                 image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/frontend-image:${{ github.sha }}"
 
-            
+            - name: Deploy to Cloud Run - UserManagement
+              id: deploy-usermanagement
+              uses: google-github-actions/deploy-cloudrun@v2.0.0
+              with:
+                service: usermanagementservice
+                region: ${{ env.REGION }}
+                image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image:${{ github.sha }}"
+  
 
             - name: Deploy to Cloud Run - TimeManagement
               id: deploy-timemanagement
