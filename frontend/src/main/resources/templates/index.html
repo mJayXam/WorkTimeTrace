@@ -109,7 +109,7 @@
                 </header>
 
                 <main class="mb-5">
-                    <ul class="mb-0" style="display: flex; list-style-type: none; justify-content: flex-end;">
+                    <ul th:if= "${kalender}"class="mb-0" style="display: flex; list-style-type: none; justify-content: flex-end;">
                         <li class="borderSchema me-2 pt-1 pe-2 ps-2 pb-1"><a th:href="@{${previousMonthUrl}}"><i class="fas fa-arrow-left" style="color: black;"></i></a></li>
                         <li class="borderSchema pt-1 pe-2 ps-2 pb-1"><a th:href="@{${nextMonthUrl}}"><i class="fas fa-arrow-right" style="color: black;"></i></a></li>
                     </ul>
