@@ -6,6 +6,6 @@ RUN mvn package -DskipTests
 
 FROM eclipse-temurin:21-jre
 WORKDIR /
-ENV PORT 8083
+ENV PORT 8080
 COPY --from=compiler /compile/target/*.jar .
 CMD ["sh", "-c", "java -jar $(ls *.jar)"]
