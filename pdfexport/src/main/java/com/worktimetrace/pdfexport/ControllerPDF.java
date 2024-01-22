@@ -3,8 +3,8 @@ package com.worktimetrace.pdfexport;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.worktimetrace.DataTypes.Nutzer;
-import com.worktimetrace.DataTypes.Stunden;
+import com.worktimetrace.DataTypes.User;
+import com.worktimetrace.DataTypes.Hours;
 
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -33,10 +33,10 @@ public class ControllerPDF {
     @GetMapping("bill/{user}/{rate}")
     public void getMethodName(@PathVariable Long user, @PathVariable float rate, HttpServletResponse response) throws DocumentException, IOException {
         // ArrayList<Stunden> hourList = getHourList(user);
-        ArrayList<Stunden> hourList = new ArrayList<>();
-        hourList.add(new Stunden(12.0, new java.sql.Date(12121212), 1L));
+        ArrayList<Hours> hourList = new ArrayList<>();
+        hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
         // Nutzer userObj = getUser(user);
-        Nutzer userObj = new Nutzer(
+        User userObj = new User(
             "Hans",
             "Wurst",
             "MRHansWurst",
@@ -56,7 +56,7 @@ public class ControllerPDF {
         response.getOutputStream().flush();
     }
 
-    private byte[] formatPDFDocument(ArrayList<Stunden> hourList, float rate, Nutzer user) throws IOException {
+    private byte[] formatPDFDocument(ArrayList<Hours> hourList, float rate, User user) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
         PdfDocument pdf = new PdfDocument(writer);
@@ -87,7 +87,7 @@ public class ControllerPDF {
         return pdfBytes;
     }
 
-    private float addPerson(Nutzer user, PdfCanvas canvas, Color color, float y, float x) throws IOException{
+    private float addPerson(User user, PdfCanvas canvas, Color color, float y, float x) throws IOException{
         float xPos = x + 10;
         float yPos = y - 10;
 
@@ -124,13 +124,13 @@ public class ControllerPDF {
         return yPos;
     }
 
-    private float addQuota(ArrayList<Stunden> hourList, PdfCanvas canvas, Color borderColor, float rate, float y, float x) throws IOException {
+    private float addQuota(ArrayList<Hours> hourList, PdfCanvas canvas, Color borderColor, float rate, float y, float x) throws IOException {
         var yPos = y;
         var xPos = x;
 
         String rateS = "Errechnete Gesamtkosten nach Satz: " + rate + "€ / std: ";
-        String quotaS = "" + hourList.stream().mapToDouble(Stunden::getStundenanzahl).sum() + " * " + rate + " € / std" + " = " +
-            hourList.stream().mapToDouble(Stunden::getStundenanzahl).sum() * rate;
+        String quotaS = "" + hourList.stream().mapToDouble(Hours::getHourcount).sum() + " * " + rate + " € / std" + " = " +
+            hourList.stream().mapToDouble(Hours::getHourcount).sum() * rate;
 
         canvas.beginText()
             .setFontAndSize(com.itextpdf.kernel.font.PdfFontFactory.createFont(), 12) // Set your font and size
@@ -151,7 +151,7 @@ public class ControllerPDF {
         return yPos;
     }
 
-    private float addHourCounter(ArrayList<Stunden> hourList, PdfCanvas canvas, Color borderColor, float y,
+    private float addHourCounter(ArrayList<Hours> hourList, PdfCanvas canvas, Color borderColor, float y,
             float x) throws IOException {
         var yPosHour = y;
         var xPosHour = x;
@@ -168,7 +168,7 @@ public class ControllerPDF {
                     .setFontAndSize(com.itextpdf.kernel.font.PdfFontFactory.createFont(), 12) // Set your font and size
                     .setColor(ColorConstants.BLACK, true)
                     .moveText(xPosHour + 20, yPosHour)
-                    .showText(e.getStundenanzahl().toString() + " +")
+                    .showText(e.getHourcount().toString() + " +")
                     .endText();
             yPosHour -= 15;
         }
@@ -183,35 +183,35 @@ public class ControllerPDF {
                     .setFontAndSize(com.itextpdf.kernel.font.PdfFontFactory.createFont(), 12) // Set your font and size
                     .setColor(ColorConstants.BLACK, true)
                     .moveText(xPosHour + 20, yPosHour)
-                    .showText(hourList.stream().mapToDouble(Stunden::getStundenanzahl).sum() + "")
+                    .showText(hourList.stream().mapToDouble(Hours::getHourcount).sum() + "")
                     .endText();
         return yPosHour-15;
     }
 
-    private ArrayList<Stunden> getHourList(Long user) {
+    private ArrayList<Hours> getHourList(Long user) {
         RestTemplate rt = new RestTemplate();
         String url = "http://timemanagement:8080/byNID/"+user;
 
-        ResponseEntity<ArrayList<Stunden>> responseEntity = rt.exchange(
+        ResponseEntity<ArrayList<Hours>> responseEntity = rt.exchange(
                 url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<ArrayList<Stunden>>() {});
+                new ParameterizedTypeReference<ArrayList<Hours>>() {});
 
-        ArrayList<Stunden> hourList = responseEntity.getBody();
+        ArrayList<Hours> hourList = responseEntity.getBody();
         return hourList;
     }
 
-    private Nutzer getUser(Long user){
+    private User getUser(Long user){
         RestTemplate rt = new RestTemplate();
         String url = "http://usermanagement:8080/user/" + user;
 
-        ResponseEntity<Nutzer> userEntity = rt.exchange(
+        ResponseEntity<User> userEntity = rt.exchange(
                 url, 
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<Nutzer>() {});
-        Nutzer userObject = userEntity.getBody();
+                new ParameterizedTypeReference<User>() {});
+        User userObject = userEntity.getBody();
         return userObject;
     }
     

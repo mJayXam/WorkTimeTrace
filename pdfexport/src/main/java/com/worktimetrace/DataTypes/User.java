@@ -2,7 +2,7 @@ package com.worktimetrace.DataTypes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Nutzer {
+public class User {
     @JsonProperty("firstname")
     private String firstname;
     @JsonProperty("lastname")
@@ -18,10 +18,10 @@ public class Nutzer {
     @JsonProperty("city")
     private String city;
 
-    public Nutzer() {
+    public User() {
     }
 
-    public Nutzer(String firstname, String lastname, String username, String street, int housenumber, String zipcode,
+    public User(String firstname, String lastname, String username, String street, int housenumber, String zipcode,
             String city) {
         this.firstname = firstname;
         this.lastname = lastname;
