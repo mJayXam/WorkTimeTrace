@@ -5,6 +5,8 @@ COPY . .
 RUN mvn package
 
 FROM eclipse-temurin:21-jre
+ARG profile
+ENV profile ${profile}
 WORKDIR /
 COPY --from=compiler /compile/target/*.jar .
-CMD ["sh", "-c", "java -jar $(ls *.jar)"]
+CMD ["sh", "-c", "java -jar -Dspring.profiles.active=${profile} $(ls *.jar)"]
