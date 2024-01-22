@@ -2,8 +2,8 @@ package com.worktimetrace.timemanagement;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.worktimetrace.timemanagement.Database.Stunden;
-import com.worktimetrace.timemanagement.Database.StundenRepo;
+import com.worktimetrace.timemanagement.Database.Hours;
+import com.worktimetrace.timemanagement.Database.HourRepo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +21,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AccessController {
 
     @Autowired
-    StundenRepo rep;
+    HourRepo rep;
     
     @GetMapping("/all")
-    public ResponseEntity<ArrayList<Stunden>> findAll() {
-        ArrayList<Stunden> ret = new ArrayList<Stunden>();
+    public ResponseEntity<ArrayList<Hours>> findAll() {
+        ArrayList<Hours> ret = new ArrayList<Hours>();
         rep.findAll().forEach(ret::add);
         return ResponseEntity.ok(ret);
     }
 
     @GetMapping("/byID/{param}")
-    public ResponseEntity<Stunden> findById(@PathVariable Long param) {
-        Optional<Stunden> request = rep.findById(param);
+    public ResponseEntity<Hours> findById(@PathVariable Long param) {
+        Optional<Hours> request = rep.findById(param);
         if (request.isPresent())
             return ResponseEntity.ok(request.get());
         else
@@ -40,21 +40,21 @@ public class AccessController {
     }
     
     @PostMapping("/insertOne")
-    public ResponseEntity<String> insertOne(@RequestBody Stunden entity) {
+    public ResponseEntity<String> insertOne(@RequestBody Hours entity) {
         rep.save(entity);
         return ResponseEntity.ok("Speichern Erfolgreich");
     }
     
     @PostMapping("/insertMany")
-    public ResponseEntity<String> insertMany(@RequestBody List<Stunden> entity) {
+    public ResponseEntity<String> insertMany(@RequestBody List<Hours> entity) {
         rep.saveAll(entity);
         return ResponseEntity.ok("Spechern Erfolgreich");
     }
     
     @GetMapping("/byNID/{param}")
-    public ResponseEntity<ArrayList<Stunden>> findByNID(@PathVariable Long param) {
-        ArrayList<Stunden> ret = new ArrayList<>();
-        rep.findByNutzerid(param).forEach(ret::add);
+    public ResponseEntity<ArrayList<Hours>> findByNID(@PathVariable Long param) {
+        ArrayList<Hours> ret = new ArrayList<>();
+        rep.findByUserid(param).forEach(ret::add);
         return ResponseEntity.ok(ret);
     }
     
