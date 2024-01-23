@@ -38,24 +38,22 @@ jobs:
               with:
                 service: frontendservice
                 region: ${{ env.REGION }}
-                image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/frontend-image:${{ github.sha }}"
 
             #- name: Deploy to Cloud Run - UserManagement
-            #  id: deploy-usermanagement
-            #  uses: google-github-actions/deploy-cloudrun@v2.0.0
+             # id: deploy-usermanagement
+              #uses: google-github-actions/deploy-cloudrun@v2.0.0
             #  with:
-            #    service: usermanagementservice
-            #    region: ${{ env.REGION }}
-            #    image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image:${{ github.sha }}"
+             #   service: usermanagementservice
+              #  region: ${{ env.REGION }}
+               # image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image-dev:${{ github.sha }}"
   
-
             - name: Deploy to Cloud Run - TimeManagement
               id: deploy-timemanagement
               uses: google-github-actions/deploy-cloudrun@v2.0.0
               with:
                 service: timemanagementservice
                 region: ${{ env.REGION }}
-                image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/timemanagement-image:${{ github.sha }}"
+                image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/timemanagement-image-dev:${{ github.sha }}"
 
             - name: Deploy to Cloud Run - PdfExport
               id: deploy-pdfexport
@@ -63,4 +61,4 @@ jobs:
               with:
                 service: pdfexportservice
                 region: ${{ env.REGION }}
-                image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image:${{ github.sha }}"
+                image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image-dev:${{ github.sha }}"

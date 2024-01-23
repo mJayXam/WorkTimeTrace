@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS roles (
     name VARCHAR(255) NOT NULL
 );
 
-INSERT INTO roles (name) VALUES ('USER');
+INSERT INTO roles (name) VALUES ('ROLE_USER');
 
 CREATE TABLE users_roles (
     user_id BIGINT,
