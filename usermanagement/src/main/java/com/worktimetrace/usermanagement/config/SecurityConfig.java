@@ -2,25 +2,30 @@ package com.worktimetrace.usermanagement.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.worktimetrace.usermanagement.service.JwtAuthFilter;
 import com.worktimetrace.usermanagement.service.UserDetailsServiceImpl;
 import static org.springframework.security.config.Customizer.withDefaults;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private UserDetailsServiceImpl userService;
+
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
 
     public SecurityConfig(UserDetailsServiceImpl userService) {
         this.userService = userService;
@@ -34,26 +39,6 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    /*
-     * @Bean
-     * AuthenticationManager authenticationManager(UserDetailsService
-     * userDetailsService,
-     * PasswordEncoder passwordEncoder) {
-     * DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-     * provider.setUserDetailsService(userDetailsService);
-     * provider.setPasswordEncoder(passwordEncoder);
-     * return provider::authenticate;
-     * }
-     */
-
-    /*
-     * @Bean
-     * public AuthenticationManager
-     * authenticationManager(AuthenticationConfiguration authConfig) throws
-     * Exception {
-     * return authConfig.getAuthenticationManager();
-     * }
-     */
 
     @Bean
     AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -68,44 +53,18 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /*
-     * @Bean
-     * SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-     * http
-     * .csrf(AbstractHttpConfigurer::disable)
-     * .authorizeHttpRequests((authorize) -> authorize
-     * .requestMatchers("/user/login", "/swagger-ui/*", "/user/register",
-     * "/user/{username}").permitAll()
-     * .anyRequest().authenticated())
-     * .httpBasic(withDefaults())
-     * .formLogin(withDefaults());
-     * return http.build();
-     * }
-     */
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().permitAll())
+                        .requestMatchers("/auth/*")
+                        .permitAll()
+                        .anyRequest().authenticated())
                 .httpBasic(withDefaults())
-                .formLogin(withDefaults());
+                .formLogin(withDefaults())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    /* @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-    return http
-        .cors(AbstractHttpConfigurer::disable)
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-//            public endpoints
-            .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
-//            private endpoints
-            .anyRequest().authenticated())
-        .authenticationManager(authenticationManager)
-        .build();
-  } */
 }

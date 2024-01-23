@@ -1,10 +1,13 @@
 package com.worktimetrace.usermanagement;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,18 +38,6 @@ public class OpenUserController {
     @Autowired
     private JwtService jwtService;
 
-    /*
-     * @PostMapping("/login")
-     * public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO
-     * loginDto) {
-     * Authentication authentication = authenticationManager
-     * .authenticate(new UsernamePasswordAuthenticationToken(loginDto.username(),
-     * loginDto.password()));
-     * SecurityContextHolder.getContext().setAuthentication(authentication);
-     * return new ResponseEntity<>("User login successfull!", HttpStatus.OK);
-     * }
-     */
-
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDto) {
         UserEntity newUser = userService.register(registerDto);
@@ -57,26 +48,6 @@ public class OpenUserController {
         return ResponseEntity.ok().body(newUser);
     }
 
-    /*
-     * @PostMapping("/login")
-     * public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO
-     * loginDto) {
-     * userService.authenticateUser(loginDto);
-     * return new ResponseEntity<>("User login successfull!", HttpStatus.OK);
-     * }
-     */
-
-    /* @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam("username") String username,
-            @RequestParam("password") String password) {
-        try {
-            userService.authenticateUser(username, password);
-            return ResponseEntity.ok("Login erfolgreich!");
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültiger Benutzername oder Passwort.");
-        }
-    } */
-
     @PostMapping(value = "/login")
   public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
@@ -84,4 +55,14 @@ public class OpenUserController {
     return ResponseEntity.ok(new LoginResponseDTO(request.username(), token));
   }
 
+  @PostMapping(value = "/validate")
+  public ResponseEntity<String> validateToken(@RequestBody Map<String, String> request) {
+    UserDetails user = userDetailsServiceImpl.loadUserByUsername(request.get("username"));
+      if (userService.validate(request.get("token"), user)) {
+        return ResponseEntity.ok("Token is valid");
+      }
+      else {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token not valid");
+      }
+  }
 }
