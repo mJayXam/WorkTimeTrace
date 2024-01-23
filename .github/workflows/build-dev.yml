@@ -2,7 +2,7 @@ name: Build Dev
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 env:
   PROJECT_ID: vaulted-art-327315 
