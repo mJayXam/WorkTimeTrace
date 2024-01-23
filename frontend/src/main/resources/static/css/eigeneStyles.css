@@ -1,0 +1,57 @@
+.borderSchema {
+    --border-width: 1px;
+    --border-color: rgba(0, 0, 0, 0.175);
+    --border-radius: 0.375rem;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.borderSchemaBottom {
+    --border-width: 1px;
+    --border-color: rgba(0, 0, 0, 0.175);
+    --border-radius: 0.375rem;
+    border-bottom: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.sticky-NavBar {
+    position: sticky;
+    top: 0;
+}
+
+.fontSizeMed-Bold{
+    font-size: medium;
+    font-weight: bolder;
+}
+
+.flexBox-row-layout {
+    display: flex;
+    flex-direction: row;
+}
+
+.flexBox-column-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+.color-black {
+    color: black;
+}
+
+.color-gray {
+    color: gray;
+}
+
+.arrow-botton {
+    display: flex;
+    list-style-type: none;
+    justify-content: flex-end;
+}
+
+.hover {
+    background-color: white;
+}
+
+.hover:hover {
+    background-color: lightgray;
+}
