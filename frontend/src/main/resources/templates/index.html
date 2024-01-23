@@ -10,25 +10,24 @@
     <!-- Icons-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-    <!-- Core theme CSS (includes Bootstrap)-->
+    <!-- Core theme CSS-->
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="/css/eigeneStyles.css">
-    <link rel="stylesheet" href="/css/overview.css">
 </head>
 
 <body>
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-NavBar">
         <div class="container">
-            <a class="navbar-brand" th:href="@{/}">WorkTimeTrace</a>
+            <a class="navbar-brand">WorkTimeTrace</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" th:href="@{/}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{Kalender?month=0}">Kalender</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{Monatsuebersicht}">Monatsübersicht</a></li>
+                    <li class="nav-item"><a th:class="${landingPage}? 'nav-link active' : 'nav-link'" aria-current="page" th:href="@{/}">Home</a></li>
+                    <li class="nav-item"><a th:class="${kalender}? 'nav-link active' : 'nav-link'" th:href="@{Kalender?month=0}">Kalender</a></li>
+                    <li class="nav-item"><a th:class="${monatsuebersicht}? 'nav-link active' : 'nav-link'" th:href="@{Monatsuebersicht}">Monatsübersicht</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">User</a>
@@ -45,7 +44,7 @@
         </div>
     </nav>
     <!-- Page Content-->
-    <div class="container px-4 px-lg-5">
+    <div class="container px-4 px-lg-5 min-vh-85">
         <!-- Landing Page Content-->
         <div th:if="${landingPage}">
             <!-- Heading Row-->
@@ -104,52 +103,39 @@
         </div>
         <div class="container">
             <div class="text-center mt-5">
-                <header th:if="${kalender}" class="text-start" style="display:flex; justify-content: space-between; align-items: flex-end;">
-                    <h1 th:text="${title}"></h1>
+                <header class="text-start">
+                    <div th:if="${kalender}">
+                        <h1 th:text="${title}"></h1>
+                    </div>
+                    <div th:if="${monatsuebersicht}">
+                        <h1 th:text="${title}"></h1>
+                    </div>
                 </header>
 
                 <main class="mb-5">
-                    <ul th:if= "${kalender}"class="mb-0" style="display: flex; list-style-type: none; justify-content: flex-end;">
-                        <li class="borderSchema me-2 pt-1 pe-2 ps-2 pb-1"><a th:href="@{${previousMonthUrl}}"><i class="fas fa-arrow-left" style="color: black;"></i></a></li>
-                        <li class="borderSchema pt-1 pe-2 ps-2 pb-1"><a th:href="@{${nextMonthUrl}}"><i class="fas fa-arrow-right" style="color: black;"></i></a></li>
+                    <ul th:if= "${kalender}" class="mb-0 arrow-botton">
+                        <li><a th:href="@{${previousMonthUrl}}"><i class="fas fa-arrow-left color-black borderSchema me-2 pt-2 pe-2 ps-2 pb-2 hover"></i></a></li>
+                        <li><a th:href="@{${nextMonthUrl}}"><i class="fas fa-arrow-right color-black borderSchema pt-2 pe-2 ps-2 pb-2 hover"></i></a></li>
                     </ul>
                     <div th:if="${kalender}" class="h-100" style="display: block;">
                         <div class="borderSchema w-100 h-100 flexBox-column-layout mt-1">
                             <div class="borderSchemaBottom h-100 flexBox-row-layout mt-3 mx-3">
                                 <div th:each= "days :${kalenderTage}" class="w-100 mx-2">
-                                    <p th:text="${days}"class="fontSizeMed-Bold"></p>
+                                    <p th:text="${days}" class="fontSizeMed-Bold"></p>
                                 </div>
                             </div>
                             <div th:each="week, weekStat :${datum}" class="h-100 flexBox-row-layout m-3">
                                 <div th:each="day, dayStat :${week}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:id= "dayNr + ${day.getDay()}" th:text="${day.getDay()}"></p>
+                                    <p th:id= "dayNr + ${day.getDay()}" th:text="${day.getDay()}" th:class="${day.getColor()}? 'color-black' : 'color-gray'"></p>
                                     <p th:id= "pos + ${day.getDay()}"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="overviewView" th:if="${monatsuebersicht}">
-                        <div class="overview">
-                            <div class="overviewTitle">
-                                <h2>Monatsübersicht</h2>
-                            </div>
-                            <div class="overviewWeeks">
-
-                            </div>
-                            <div class="overviewWeek1">
-
-                            </div>
-                            <div class="overviewWeek2">
-
-                            </div>
-                            <div class="overviewWeek3">
-
-                            </div>
-                            <div class="overviewWeek4">
-
-                            </div>
-                            <div class="overviewWeek5">
-
+                    <div th:if="${monatsuebersicht}">
+                        <div class="borderSchema">
+                            <div>
+                                <h2>Januar 2024</h2>
                             </div>
                         </div>
                     </div>

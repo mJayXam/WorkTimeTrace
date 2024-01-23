@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.worktimetrace.frontend.Models.Calender;
+import com.worktimetrace.frontend.Models.CalendarMonth;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -28,19 +28,25 @@ public class UIController {
     public String showKalenderView(@RequestParam(name = "month", required = false) int parameter, Model model) {
         String [] dayStrings = {"Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"};
         ArrayList<String> days = new ArrayList<>(Arrays.asList(dayStrings));
+        
 
-        if(parameter == 0){
+        if(parameter == 0)
+        {
+            CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now());
             model.addAttribute("kalender", true);
             model.addAttribute("kalenderTage", days);
-            model.addAttribute("datum", Calender.fillWeeksInMonthArray(LocalDate.now()));
-            model.addAttribute("title", new Calender(LocalDate.now()).getMonthYear());
+            model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
+            model.addAttribute("title", new CalendarMonth(LocalDate.now()).getMonthYear());
             model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
             model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
-        } else {
+        }
+        else
+        {
+            CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(parameter));
             model.addAttribute("kalender", true);
             model.addAttribute("kalenderTage", days);
-            model.addAttribute("datum", Calender.fillWeeksInMonthArray(LocalDate.now().plusMonths(parameter)));
-            model.addAttribute("title", new Calender(LocalDate.now().plusMonths(parameter)).getMonthYear());
+            model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
+            model.addAttribute("title", new CalendarMonth(LocalDate.now().plusMonths(parameter)).getMonthYear());
             model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
             model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
         }
@@ -51,6 +57,7 @@ public class UIController {
     @GetMapping("/Monatsuebersicht")
     public String showMonatsuebersichtView(Model model) {
         model.addAttribute("monatsuebersicht", true);
+        model.addAttribute("title", "Monatsübersicht");
         return "index";
     }
     
