@@ -2,7 +2,7 @@ name: Build Dev
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop" ]
 
 env:
   PROJECT_ID: vaulted-art-327315 
@@ -59,6 +59,4 @@ jobs:
         run: |
           docker build --platform linux/amd64 --build-arg profile=dev -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image:${{ github.sha }}" ./pdfexport
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image:${{ github.sha }}"
-
-
       # END - Docker build
