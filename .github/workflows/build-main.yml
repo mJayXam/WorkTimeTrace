@@ -42,22 +42,22 @@ jobs:
       # Build containers and push to Google cloud
       - name: Build and Push Container - Frontend
         run: |
-          docker build --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/frontend-image:${{ github.sha }}" ./frontend
+          docker build --platform linux/amd64 --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/frontend-image:${{ github.sha }}" ./frontend
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/frontend-image:${{ github.sha }}"
 
       - name: Build and Push Container - UserManagement
         run: |
-          docker build --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image:${{ github.sha }}" ./usermanagement
+          docker build --platform linux/amd64 --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image:${{ github.sha }}" ./usermanagement
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image:${{ github.sha }}"
 
       - name: Build and Push Container - TimeManagement
         run: |
-          docker build --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/timemanagement-image:${{ github.sha }}" ./timemanagement
+          docker build --platform linux/amd64 --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/timemanagement-image:${{ github.sha }}" ./timemanagement
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/timemanagement-image:${{ github.sha }}"
 
       - name: Build and Push Container - PdfExport
         run: |
-          docker build --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image:${{ github.sha }}" ./pdfexport
+          docker build --platform linux/amd64 --build-arg profile=prod -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image:${{ github.sha }}" ./pdfexport
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/pdfexport-image:${{ github.sha }}"
 
 
