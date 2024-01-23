@@ -46,7 +46,7 @@ jobs:
             #  with:
              #   service: usermanagementservice
               #  region: ${{ env.REGION }}
-               # image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image-dev:${{ github.sha }}"
+              #  image: "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/worktimetraceregistry/usermanagement-image-dev:${{ github.sha }}"
   
             - name: Deploy to Cloud Run - TimeManagement
               id: deploy-timemanagement
