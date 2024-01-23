@@ -1,3 +1,8 @@
 package com.worktimetrace.usermanagement.DTO;
 
-public record LoginDTO(String username, String password){}
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginDTO(
+        @NotBlank(message = "Nutzername darf nicht leer sein") String username,
+        @NotBlank(message = "Passwort darf nicht leer sein") String password) {
+}
