@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "roles")
 public class RoleEntity {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,8 +24,17 @@ public class RoleEntity {
     @Column(nullable = false)
     private String name;
 
+
     public RoleEntity() {
     }
+
+    public RoleEntity(Integer id, Set<UserEntity> users, String name) {
+        this.id = id;
+        this.users = users;
+        this.name = name;
+    }
+
+    
 
     public Integer getId() {
         return id;

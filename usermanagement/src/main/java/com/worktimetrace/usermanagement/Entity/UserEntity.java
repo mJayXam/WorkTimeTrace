@@ -1,12 +1,10 @@
 package com.worktimetrace.usermanagement.Entity;
 
-import java.util.Collection;
 import java.util.Set;
-
-import org.springframework.context.annotation.Lazy;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -46,7 +44,7 @@ public class UserEntity {
     @Column(nullable = false)
     private String city;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(
@@ -57,7 +55,10 @@ public class UserEntity {
             referencedColumnName = "id"))
     private Set<RoleEntity> roles;
 
-    public UserEntity(String username, String password, String firstname, String lastname, String street, int housenumber, String zipcode, String city) {
+    
+    public UserEntity() {}
+
+    public UserEntity(String username, String password, String firstname, String lastname, String street, int housenumber, String zipcode, String city, Set<RoleEntity> roles) {
         this.username = username;
         this.password = password;
         this.firstname = firstname;
@@ -66,9 +67,8 @@ public class UserEntity {
         this.housenumber = housenumber;
         this.zipcode = zipcode;
         this.city = city;
+        this.roles = roles;
     }
-
-    public UserEntity() {}
 
     public long getId() {
         return id;
