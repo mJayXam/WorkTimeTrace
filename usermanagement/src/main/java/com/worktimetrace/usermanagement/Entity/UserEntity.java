@@ -54,6 +54,7 @@ public class UserEntity {
             name = "role_id", 
             referencedColumnName = "id"))
     private Set<RoleEntity> roles;
+
     
     public UserEntity() {}
 
@@ -68,7 +69,7 @@ public class UserEntity {
         this.city = city;
         this.roles = roles;
     }
-  
+
     public long getId() {
         return id;
     }

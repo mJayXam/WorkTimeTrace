@@ -24,6 +24,7 @@ public class RoleEntity {
     @Column(nullable = false)
     private String name;
 
+
     public RoleEntity() {
     }
 
@@ -32,6 +33,8 @@ public class RoleEntity {
         this.users = users;
         this.name = name;
     }
+
+    
 
     public Integer getId() {
         return id;

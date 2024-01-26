@@ -10,3 +10,4 @@ ENV profile ${profile}
 WORKDIR /
 COPY --from=compiler /compile/target/*.jar .
 CMD ["sh", "-c", "java -jar -Dspring.profiles.active=${profile} $(ls *.jar)"]
+
