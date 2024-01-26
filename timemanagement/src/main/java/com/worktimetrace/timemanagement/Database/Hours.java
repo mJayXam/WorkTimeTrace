@@ -28,6 +28,11 @@ public class Hours {
     @Column(name = "userid")
     private Long userid;
 
+    public Hours(HourSender sender){
+        this.hourcount = sender.getHourcount();
+        this.date = sender.getDate();
+        this.userid = sender.getUserid();
+    }
 
     public Hours() {
     }
