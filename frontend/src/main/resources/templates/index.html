@@ -9,7 +9,8 @@
     <title>WorkTimeTrace</title>
     <!-- Icons-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <!-- Core theme CSS-->
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="/css/eigeneStyles.css">
@@ -25,9 +26,14 @@
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a th:class="${landingPage}? 'nav-link active' : 'nav-link'" aria-current="page" th:href="@{/}">Home</a></li>
-                    <li class="nav-item"><a th:class="${kalender}? 'nav-link active' : 'nav-link'" th:href="@{Kalender?month=0}">Kalender</a></li>
-                    <li class="nav-item"><a th:class="${monatsuebersicht}? 'nav-link active' : 'nav-link'" th:href="@{Monatsuebersicht}">Monatsübersicht</a></li>
+                    <li class="nav-item"><a th:class="${landingPage}? 'nav-link active' : 'nav-link'"
+                            aria-current="page" th:href="@{/}">Home</a></li>
+                    <li class="nav-item"><a th:class="${login}? 'nav-link active' : 'nav-link'"
+                            th:href="@{login}">Login</a></li>
+                    <li class="nav-item"><a th:class="${kalender}? 'nav-link active' : 'nav-link'"
+                            th:href="@{kalender?month=0}">Kalender</a></li>
+                    <li class="nav-item"><a th:class="${monatsuebersicht}? 'nav-link active' : 'nav-link'"
+                            th:href="@{monatsuebersicht}">Monatsübersicht</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">User</a>
@@ -57,7 +63,7 @@
                         richtet sich in erster Linie an Arbeitnehmer, die ihre Arbeitszeiten in die Anwendung eingeben
                         können. Durch die Eingabe des Gehalts ist es möglich, sich automatisch eine monatliche
                         Abrechnung zu generieren.</p>
-                    <a class="btn btn-primary" href="#!">Jetzt Registrieren</a>
+                    <a class="btn btn-primary" th:href="@{registration}">Jetzt Registrieren</a>
                 </div>
             </div>
             <!-- Call to Action-->
@@ -113,21 +119,26 @@
                 </header>
 
                 <main class="mb-5">
-                    <ul th:if= "${kalender}" class="mb-0 arrow-botton">
-                        <li><a th:href="@{${previousMonthUrl}}"><i class="fas fa-arrow-left color-black borderSchema me-2 pt-2 pe-2 ps-2 pb-2 hover"></i></a></li>
-                        <li><a th:href="@{${nextMonthUrl}}"><i class="fas fa-arrow-right color-black borderSchema pt-2 pe-2 ps-2 pb-2 hover"></i></a></li>
+                    <ul th:if="${kalender}" class="mb-0 arrow-botton">
+                        <li><a th:href="@{${previousMonthUrl}}"><i
+                                    class="fas fa-arrow-left color-black borderSchema me-2 pt-2 pe-2 ps-2 pb-2 hover"></i></a>
+                        </li>
+                        <li><a th:href="@{${nextMonthUrl}}"><i
+                                    class="fas fa-arrow-right color-black borderSchema pt-2 pe-2 ps-2 pb-2 hover"></i></a>
+                        </li>
                     </ul>
                     <div th:if="${kalender}" class="h-100" style="display: block;">
                         <div class="borderSchema w-100 h-100 flexBox-column-layout mt-1">
                             <div class="borderSchemaBottom h-100 flexBox-row-layout mt-3 mx-3">
-                                <div th:each= "days :${kalenderTage}" class="w-100 mx-2">
+                                <div th:each="days :${kalenderTage}" class="w-100 mx-2">
                                     <p th:text="${days}" class="fontSizeMed-Bold"></p>
                                 </div>
                             </div>
                             <div th:each="week, weekStat :${datum}" class="h-100 flexBox-row-layout m-3">
                                 <div th:each="day, dayStat :${week}" class="w-100 borderSchema vh-10 mx-1">
-                                    <p th:id= "dayNr + ${day.getDay()}" th:text="${day.getDay()}" th:class="${day.getColor()}? 'color-black' : 'color-gray'"></p>
-                                    <p th:id= "pos + ${day.getDay()}"></p>
+                                    <p th:id="dayNr + ${day.getDay()}" th:text="${day.getDay()}"
+                                        th:class="${day.getColor()}? 'color-black' : 'color-gray'"></p>
+                                    <p th:id="pos + ${day.getDay()}"></p>
                                 </div>
                             </div>
                         </div>
@@ -137,6 +148,88 @@
                             <div>
                                 <h2>Januar 2024</h2>
                             </div>
+                        </div>
+                    </div>
+                    <div th:if="${registration}" style="display: flex; height: 60vh; justify-content: center; align-items: center;">
+                        <div class="borderSchema pt-3 pb-3 pe-5 ps-5" style="width: 50%;">
+                            <form role="form" method="post" th:action="@{/registration}" th:object="${user}">
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="firstname">Vorname</label>
+                                        <input type="text" class="form-control" id="firstname" name="firstname"
+                                            th:field="*{firstname}" placeholder="Vorname">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="lastname">Nachname</label>
+                                        <input type="text" class="form-control" id="lastname" name="lastname"
+                                            th:field="*{lastname}" placeholder="Nachname">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="username">Benutzername</label>
+                                        <input type="text" class="form-control" id="username" name="username"
+                                            th:field="*{username}" placeholder="Benutzername">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="street">Straße</label>
+                                        <input type="text" class="form-control" id="street" name="street"
+                                            th:field="*{street}" placeholder="Straße">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6 me-1" style="flex: 1; width: 100%;">
+                                        <label for="housenumber">Hausnr.</label>
+                                        <input type="text" class="form-control" id="housenumber" name="housenumber"
+                                            th:field="*{housenumber}" placeholder="Nr">
+                                    </div>
+                                    <div class="col-md-6" style="flex: 2; width: 100%;">
+                                        <label for="zipcode">Postleitzahl</label>
+                                        <input type="text" class="form-control" id="zipcode" name="zipcode"
+                                            th:field="*{zipcode}" placeholder="Postleitzahl">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="city">Stadt</label>
+                                        <input type="text" class="form-control" id="city" name="city" th:field="*{city}"
+                                            placeholder="Stadt">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="password">Passwort</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            th:field="*{password}" placeholder="Passwort">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Registrieren</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div th:if="${login}" style="display: flex; height: 60vh; justify-content: center; align-items: center;">
+                        <div class="borderSchema pt-3 pb-3 pe-5 ps-5" style="width: 50%;">
+                            <form role="form" method="post" th:action="@{/login}" th:object="${logindata}">
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="username">Benutzername</label>
+                                        <input type="text" class="form-control" id="username" name="username"
+                                            th:field="*{username}" placeholder="Benutzername">
+                                    </div>
+                                </div>
+                                <div class="pb-3" style="display: flex; justify-content: center;">
+                                    <div class="col-md-6" style="width: 100%;">
+                                        <label for="password">Passwort</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            th:field="*{password}" placeholder="Passwort">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </form>
                         </div>
                     </div>
                 </main>
