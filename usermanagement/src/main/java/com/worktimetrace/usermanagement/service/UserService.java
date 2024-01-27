@@ -68,6 +68,7 @@ public class UserService {
     }
 
     public boolean validate(String token, UserDetails userDetails) {
+        token = jwtService.removeBearerFromToken(token);
         return jwtService.validateToken(token, userDetails);
     }
 }

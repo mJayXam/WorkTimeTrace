@@ -80,4 +80,11 @@ public class JwtService {
         Claims claims = getTokenBody(token);
         return claims.getExpiration().before(new Date());
       }
+
+      public String removeBearerFromToken(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return token;
+    }
 }
