@@ -1,6 +1,7 @@
 package com.worktimetrace.timemanagement.Security;
 
 public class User {
+    private Long id;
     private String firstname;
     private String lastname;
     private String username;
@@ -12,8 +13,9 @@ public class User {
     public User() {
     }
 
-    public User(String firstname, String lastname, String username, String street, int housenumber, String zipcode,
+    public User(Long id, String firstname, String lastname, String username, String street, int housenumber, String zipcode,
             String city) {
+        this.id = id;        
         this.firstname = firstname;
         this.lastname = lastname;
         this.username = username;
@@ -77,5 +79,13 @@ public class User {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

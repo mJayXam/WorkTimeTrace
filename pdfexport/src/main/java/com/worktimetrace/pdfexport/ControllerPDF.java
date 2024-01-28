@@ -45,28 +45,9 @@ public class ControllerPDF {
                         response.setStatus(401);;
                         return;
                 }
-                // ArrayList<Hours> hourList = getHourList(UserResp.getBody().get);
-
-                ArrayList<Hours> hourList = new ArrayList<>();
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
-                hourList.add(new Hours(12.0, new java.sql.Date(12121212), 1L));
+                ArrayList<Hours> hourList = getHourList(UserResp.getBody(), token.substring(("Bearer ").length()));
 
                 User userObj = UserResp.getBody();
-
-                // User userObj = new User(
-                // "Hans",
-                // "Wurst",
-                // "MRHansWurst",
-                // "Hauptstrasse",
-                // 1,
-                // "11111",
-                // "Berlin");
 
                 byte[] pdfBytes = Bill
                                 .make()
@@ -84,24 +65,27 @@ public class ControllerPDF {
                 response.getOutputStream().flush();
         }
 
-        private ArrayList<Hours> getHourList(String user, String token) {
+        private ArrayList<Hours> getHourList(User user, String token) {
                 RestTemplate rt = new RestTemplate();
-                String url = "http://timemanagement:8080/byUsername/" + user; // TODO Muss noch implementiert werden
+                String url = "http://timemanagement:8080/byNID/" + user.getId();
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("username", user);
-                headers.add("token", token);
+                headers.add("username", user.getUsername());
+                headers.set("Authorization","Bearer " + token);
 
                 HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-
-                ResponseEntity<ArrayList<Hours>> responseEntity = rt.exchange(
-                                url,
-                                HttpMethod.GET,
-                                requestEntity,
-                                new ParameterizedTypeReference<ArrayList<Hours>>() {
-                                });
-
+                
+                ResponseEntity<ArrayList<Hours>> responseEntity;
+                try{
+                        responseEntity = rt.exchange(
+                            url,
+                            HttpMethod.GET,
+                            requestEntity,
+                            new ParameterizedTypeReference<ArrayList<Hours>>() {});
+                    }catch(Exception e){
+                        responseEntity = ResponseEntity.status(401).build();
+                    }
                 ArrayList<Hours> hourList = responseEntity.getBody();
                 return hourList;
         }
