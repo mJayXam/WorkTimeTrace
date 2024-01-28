@@ -55,6 +55,7 @@ public class UserService {
         if (newUser.isPresent()) {
             UserEntity user = newUser.get();
             UserInfoDTO userInfoDTO = new UserInfoDTO();
+            userInfoDTO.setId(user.getId());
             userInfoDTO.setFirstname(user.getFirstname());
             userInfoDTO.setLastname(user.getLastname());
             userInfoDTO.setUsername(user.getUsername());
