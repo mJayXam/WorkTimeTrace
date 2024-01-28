@@ -1,4 +1,4 @@
-package com.worktimetrace.timemanagement.Security;
+package com.worktimetrace.Security;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -16,7 +16,7 @@ public class SecurityManger {
 
     public static ResponseEntity<User> wrongToken(String username, String token){
         RestTemplate rt = new RestTemplate();
-        String url = "http://usermanagement:8080/user/info";
+        String url = "http://usermanagement/auth/validate";
         // String url = "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/user/info";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -35,5 +35,6 @@ public class SecurityManger {
         }
         return responseEntity;
     }
+        
         
 }
