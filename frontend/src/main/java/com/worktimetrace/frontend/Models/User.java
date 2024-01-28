@@ -6,7 +6,7 @@ public class User {
     private String lastname;
     private String username;
     private String street;
-    private int housenumber;
+    private String housenumber;
     private String zipcode;
     private String city;
     private String password;
@@ -14,7 +14,7 @@ public class User {
     public User() {
     }
 
-    public User(String firstname, String lastname, String username, String street, int housenumber,
+    public User(String firstname, String lastname, String username, String street, String housenumber,
             String zipcode, String city, String password) {
         this.firstname = firstname;
         this.lastname = lastname;
@@ -51,10 +51,10 @@ public class User {
     public void setStreet(String street) {
         this.street = street;
     }
-    public int getHousenumber() {
+    public String getHousenumber() {
         return housenumber;
     }
-    public void setHousenumber(int housenumber) {
+    public void setHousenumber(String housenumber) {
         this.housenumber = housenumber;
     }
     public String getZipcode() {

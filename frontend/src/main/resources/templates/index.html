@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    <!-- Responsive navbar-->
+    <!--navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-NavBar">
         <div class="container">
             <a class="navbar-brand">WorkTimeTrace</a>
@@ -26,34 +26,35 @@
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a th:class="${landingPage}? 'nav-link active' : 'nav-link'"
-                            aria-current="page" th:href="@{/}">Home</a></li>
-                    <li class="nav-item"><a th:class="${login}? 'nav-link active' : 'nav-link'"
+                    <li th:if="!${loggedIn}" class="nav-item"><a
+                            th:class="${landingPage}? 'nav-link active' : 'nav-link'" aria-current="page"
+                            th:href="@{/}">Home</a></li>
+                    <li th:if="!${loggedIn}" class="nav-item"><a th:class="${login}? 'nav-link active' : 'nav-link'"
                             th:href="@{login}">Login</a></li>
-                    <li class="nav-item"><a th:class="${kalender}? 'nav-link active' : 'nav-link'"
+                    <li th:if="${loggedIn}" class="nav-item"><a th:class="${kalender}? 'nav-link active' : 'nav-link'"
                             th:href="@{kalender?month=0}">Kalender</a></li>
-                    <li class="nav-item"><a th:class="${monatsuebersicht}? 'nav-link active' : 'nav-link'"
+                    <li th:if="${loggedIn}" class="nav-item"><a
+                            th:class="${monatsuebersicht}? 'nav-link active' : 'nav-link'"
                             th:href="@{monatsuebersicht}">Monatsübersicht</a></li>
-                    <li class="nav-item dropdown">
+                    <li th:if="${loggedIn}" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">User</a>
+                            data-bs-toggle="dropdown" aria-expanded="false" th:text="${username}"></a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#">Benutzinformationen</a></li>
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>
-                            <li><a class="dropdown-item" href="#">Abmelden</a></li>
+                            <li><a class="dropdown-item" th:href="@{/logout}">Abmelden</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <!-- Page Content-->
+    <!--Page Content-->
     <div class="container px-4 px-lg-5 min-vh-85">
-        <!-- Landing Page Content-->
+        <!--Landing Page Content-->
         <div th:if="${landingPage}">
-            <!-- Heading Row-->
             <div class="row gx-4 gx-lg-5 align-items-center my-5">
                 <div class="col-lg-7"><img class="img-fluid rounded mb-4 mb-lg-0" src="/images/WorkingPerson.jpg"
                         alt="..." /></div>
@@ -66,13 +67,13 @@
                     <a class="btn btn-primary" th:href="@{registration}">Jetzt Registrieren</a>
                 </div>
             </div>
-            <!-- Call to Action-->
+            <!--Call to Action-->
             <div class="card text-white bg-secondary my-5 py-4 text-center">
                 <div class="card-body">
                     <p class="text-white m-0 h3">Efficiency in every embrace, track your work with WorkTimeTrace.</p>
                 </div>
             </div>
-            <!-- Content Row-->
+            <!--Content Row-->
             <div class="row gx-4 gx-lg-5 mb-3">
                 <div class="col-md-4 mb-5">
                     <div class="card h-100">
@@ -110,16 +111,16 @@
         <div class="container">
             <div class="text-center mt-5">
                 <header class="text-start">
-                    <div th:if="${kalender}">
+                    <div th:if="${kalender ?: false && loggedIn ?: false}">
                         <h1 th:text="${title}"></h1>
                     </div>
-                    <div th:if="${monatsuebersicht}">
+                    <div th:if="${monatsuebersicht ?: false && loggedIn ?: false}">
                         <h1 th:text="${title}"></h1>
                     </div>
                 </header>
 
                 <main class="mb-5">
-                    <ul th:if="${kalender}" class="mb-0 arrow-botton">
+                    <ul th:if="${kalender ?: false && loggedIn ?: false}" class="mb-0 arrow-botton">
                         <li><a th:href="@{${previousMonthUrl}}"><i
                                     class="fas fa-arrow-left color-black borderSchema me-2 pt-2 pe-2 ps-2 pb-2 hover"></i></a>
                         </li>
@@ -127,7 +128,7 @@
                                     class="fas fa-arrow-right color-black borderSchema pt-2 pe-2 ps-2 pb-2 hover"></i></a>
                         </li>
                     </ul>
-                    <div th:if="${kalender}" class="h-100" style="display: block;">
+                    <div th:if="${kalender ?: false && loggedIn ?: false}" class="h-100" style="display: block;">
                         <div class="borderSchema w-100 h-100 flexBox-column-layout mt-1">
                             <div class="borderSchemaBottom h-100 flexBox-row-layout mt-3 mx-3">
                                 <div th:each="days :${kalenderTage}" class="w-100 mx-2">
@@ -143,15 +144,23 @@
                             </div>
                         </div>
                     </div>
-                    <div th:if="${monatsuebersicht}">
+                    <div th:if="${monatsuebersicht ?: false && loggedIn ?: false}">
                         <div class="borderSchema">
                             <div>
                                 <h2>Januar 2024</h2>
                             </div>
                         </div>
                     </div>
-                    <div th:if="${registration}" style="display: flex; height: 60vh; justify-content: center; align-items: center;">
-                        <div class="borderSchema pt-3 pb-3 pe-5 ps-5" style="width: 50%;">
+
+                    <div th:if="${registration}"
+                        style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 60vh;">
+                        <div class="mb-4" th:if="${registration ?: false && !loggedIn ?: true}">
+                            <h1 th:text="${title}"></h1>
+                        </div>
+                        <div class="borderSchema pt-3 pb-3 pe-5 ps-5 mt-3" style="width: 50%;">
+                            <div class="errorSchema mb-3" th:if="${registrationError != null}">
+                                <p class="mb-1 mt-1" th:text="${registrationError}"></p>
+                            </div>
                             <form role="form" method="post" th:action="@{/registration}" th:object="${user}">
                                 <div class="pb-3" style="display: flex; justify-content: center;">
                                     <div class="col-md-6" style="width: 100%;">
@@ -183,7 +192,7 @@
                                 </div>
                                 <div class="pb-3" style="display: flex; justify-content: center;">
                                     <div class="col-md-6 me-1" style="flex: 1; width: 100%;">
-                                        <label for="housenumber">Hausnr.</label>
+                                        <label for="housenumber">Hausnummer</label>
                                         <input type="text" class="form-control" id="housenumber" name="housenumber"
                                             th:field="*{housenumber}" placeholder="Nr">
                                     </div>
@@ -211,8 +220,14 @@
                             </form>
                         </div>
                     </div>
-                    <div th:if="${login}" style="display: flex; height: 60vh; justify-content: center; align-items: center;">
+                    <div th:if="${login}" style="display: flex; flex-direction: column; height: 60vh; justify-content: center; align-items: center;">
+                        <div class="mb-4" th:if="${login ?: false && !loggedIn ?: true}">
+                            <h1 th:text="${title}"></h1>
+                        </div>
                         <div class="borderSchema pt-3 pb-3 pe-5 ps-5" style="width: 50%;">
+                            <div class="errorSchema mb-3" th:if="${loginError != null}">
+                                <p class="mb-1 mt-1" th:text="${loginError}"></p>
+                            </div>
                             <form role="form" method="post" th:action="@{/login}" th:object="${logindata}">
                                 <div class="pb-3" style="display: flex; justify-content: center;">
                                     <div class="col-md-6" style="width: 100%;">
