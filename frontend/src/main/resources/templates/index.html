@@ -30,12 +30,12 @@
                             th:class="${landingPage}? 'nav-link active' : 'nav-link'" aria-current="page"
                             th:href="@{/}">Home</a></li>
                     <li th:if="!${loggedIn}" class="nav-item"><a th:class="${login}? 'nav-link active' : 'nav-link'"
-                            th:href="@{login}">Login</a></li>
+                            th:href="@{Login}">Login</a></li>
                     <li th:if="${loggedIn}" class="nav-item"><a th:class="${kalender}? 'nav-link active' : 'nav-link'"
-                            th:href="@{kalender?month=0}">Kalender</a></li>
+                            th:href="@{Kalender?month=0}">Kalender</a></li>
                     <li th:if="${loggedIn}" class="nav-item"><a
                             th:class="${monatsuebersicht}? 'nav-link active' : 'nav-link'"
-                            th:href="@{monatsuebersicht}">Monatsübersicht</a></li>
+                            th:href="@{Monatsuebersicht}">Monatsübersicht</a></li>
                     <li th:if="${loggedIn}" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false" th:text="${username}"></a>
@@ -44,7 +44,7 @@
                             <li>
                                 <hr class="dropdown-divider" />
                             </li>
-                            <li><a class="dropdown-item" th:href="@{/logout}">Abmelden</a></li>
+                            <li><a class="dropdown-item" th:href="@{/Logout}">Abmelden</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -64,7 +64,7 @@
                         richtet sich in erster Linie an Arbeitnehmer, die ihre Arbeitszeiten in die Anwendung eingeben
                         können. Durch die Eingabe des Gehalts ist es möglich, sich automatisch eine monatliche
                         Abrechnung zu generieren.</p>
-                    <a class="btn btn-primary" th:href="@{registration}">Jetzt Registrieren</a>
+                    <a class="btn btn-primary" th:href="@{Registration}">Jetzt Registrieren</a>
                 </div>
             </div>
             <!--Call to Action-->
@@ -161,7 +161,7 @@
                             <div class="errorSchema mb-3" th:if="${registrationError != null}">
                                 <p class="mb-1 mt-1" th:text="${registrationError}"></p>
                             </div>
-                            <form role="form" method="post" th:action="@{/registration}" th:object="${user}">
+                            <form role="form" method="post" th:action="@{/Registration}" th:object="${user}">
                                 <div class="pb-3" style="display: flex; justify-content: center;">
                                     <div class="col-md-6" style="width: 100%;">
                                         <label for="firstname">Vorname</label>
@@ -228,7 +228,7 @@
                             <div class="errorSchema mb-3" th:if="${loginError != null}">
                                 <p class="mb-1 mt-1" th:text="${loginError}"></p>
                             </div>
-                            <form role="form" method="post" th:action="@{/login}" th:object="${logindata}">
+                            <form role="form" method="post" th:action="@{/Login}" th:object="${logindata}">
                                 <div class="pb-3" style="display: flex; justify-content: center;">
                                     <div class="col-md-6" style="width: 100%;">
                                         <label for="username">Benutzername</label>

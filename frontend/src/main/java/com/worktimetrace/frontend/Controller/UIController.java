@@ -34,11 +34,11 @@ public class UIController {
 
     @GetMapping("/")
     public String showLandingPage(Model model, HttpSession session) {
-        Boolean logedIn = (Boolean) session.getAttribute("loginSuccess");
-
-        if (logedIn != null && logedIn) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
             session.setAttribute("loginSuccess", true);
+            return "redirect:/Kalender?month=0";
         } else {
             session.invalidate();
         }
@@ -46,7 +46,7 @@ public class UIController {
         return "index";
     }
 
-    @GetMapping("/registration")
+    @GetMapping("/Registration")
     public String showRegistrationView(Model model, HttpSession session) {
         String registrationError = (String) session.getAttribute("registrationError");
         User user = new User();
@@ -64,7 +64,7 @@ public class UIController {
         return "index";
     }
 
-    @PostMapping("/registration")
+    @PostMapping("/Registration")
     public String getRegistrationData(@ModelAttribute("user") User user, HttpSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -85,7 +85,7 @@ public class UIController {
                     session.setAttribute("token", userToken.getToken());
                     session.setAttribute("loginSuccess", true);
 
-                    return "redirect:/kalender?month=0";
+                    return "redirect:/Kalender?month=0";
                 }
             }
         } catch (HttpClientErrorException.Unauthorized unauthorizedException) {
@@ -97,20 +97,20 @@ public class UIController {
             session.setAttribute("hausnr", user.getHousenumber());
             session.setAttribute("postleitzahl", user.getZipcode());
             session.setAttribute("stadt", user.getCity());
-            return "redirect:/registration";
+            return "redirect:/Registration";
         } catch (JsonProcessingException e) {
-            return "redirect:/registration";
+            return "redirect:/Registration";
         }
 
         return "redirect:/";
     }
 
-    @GetMapping("/login")
+    @GetMapping("/Login")
     public String showLoginView(Model model, HttpSession session) {
         LoginData loginData = new LoginData();
         String loginError = (String) session.getAttribute("loginError");
 
-        if(loginError != null) {
+        if (loginError != null) {
             model.addAttribute("loginError", loginError);
         } else {
             model.addAttribute("loginError", null);
@@ -123,7 +123,7 @@ public class UIController {
         return "index";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/Login")
     public String getLoginData(@ModelAttribute("logindata") LoginData loginData, HttpSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -138,11 +138,11 @@ public class UIController {
                 session.setAttribute("username", user.getUsername());
                 session.setAttribute("token", user.getToken());
                 session.setAttribute("loginSuccess", true);
-                return "redirect:/kalender?month=0";
+                return "redirect:/Kalender?month=0";
             } else {
                 session.setAttribute("loginError", "Ungültiger Benutzername oder Passwort");
                 session.setAttribute("benutzername", loginData.getUsername());
-                return "redirect:/login";
+                return "redirect:/Login";
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -151,7 +151,7 @@ public class UIController {
         return "redirect:/";
     }
 
-    @GetMapping("/logout")
+    @GetMapping("/Logout")
     public String showLogoutView(Model model, HttpSession session) {
         Boolean logedIn = (Boolean) session.getAttribute("loginSuccess");
 
@@ -162,7 +162,7 @@ public class UIController {
         return "redirect:/";
     }
 
-    @GetMapping("/kalender")
+    @GetMapping("/Kalender")
     public String showKalenderView(@RequestParam(name = "month", required = false) int parameter, Model model,
             HttpSession session) {
         String[] dayStrings = { "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So" };
@@ -177,6 +177,9 @@ public class UIController {
             session.setAttribute("token", token);
             model.addAttribute("kalender", true);
             model.addAttribute("username", username);
+        } else {
+            session.invalidate();
+            return "redirect:/";
         }
 
         if (parameter == 0) {
@@ -184,34 +187,38 @@ public class UIController {
             model.addAttribute("kalenderTage", days);
             model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
             model.addAttribute("title", calendarMonth.getMonthYear());
-            model.addAttribute("nextMonthUrl", "kalender?month=" + (parameter + 1));
-            model.addAttribute("previousMonthUrl", "kalender?month=" + (parameter - 1));
+            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
+            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
         } else {
             CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(parameter));
             model.addAttribute("kalenderTage", days);
             model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
             model.addAttribute("title", calendarMonth.getMonthYear());
-            model.addAttribute("nextMonthUrl", "kalender?month=" + (parameter + 1));
-            model.addAttribute("previousMonthUrl", "kalender?month=" + (parameter - 1));
+            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
+            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
         }
 
         return "index";
     }
 
-    @GetMapping("/monatsuebersicht")
+    @GetMapping("/Monatsuebersicht")
     public String showMonatsuebersichtView(Model model, HttpSession session) {
-        Boolean logedIn = (Boolean) session.getAttribute("loginSuccess");
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
 
-        if (logedIn != null && logedIn) {
+        if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
             session.setAttribute("loginSuccess", true);
             session.setAttribute("token", token);
             model.addAttribute("username", username);
             model.addAttribute("monatsuebersicht", true);
             model.addAttribute("title", "Monatsübersicht");
+        } else {
+            session.invalidate();
+            return "redirect:/";
         }
+
         return "index";
     }
 
