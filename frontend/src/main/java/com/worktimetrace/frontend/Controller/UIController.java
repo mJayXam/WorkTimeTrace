@@ -68,7 +68,6 @@ public class UIController {
     public String getRegistrationData(@ModelAttribute("user") User user, HttpSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-
             String requestJsonRegistration = objectMapper.writeValueAsString(user);
             ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
                     "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/register", requestJsonRegistration);

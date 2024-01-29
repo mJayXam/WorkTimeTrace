@@ -29,5 +29,9 @@ public class UserToken {
         this.token = token;
     }
 
-    
+    @Override
+    public String toString() {
+        return "UserToken [username=" + username + ", token=" + token + "]";
+    }
+
 }
