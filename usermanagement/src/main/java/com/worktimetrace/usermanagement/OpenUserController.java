@@ -1,13 +1,13 @@
 package com.worktimetrace.usermanagement;
 
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,43 +26,40 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/auth")
 public class OpenUserController {
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsServiceImpl;
+  Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+  @Autowired
+  private UserService userService;
 
-    @Autowired
-    private JwtService jwtService;
+  @Autowired
+  private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDto) {
-        UserEntity newUser = userService.register(registerDto);
-        if (newUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(String.format("Nutzer mit Nutzernamen '%s' existiert bereits.", registerDto.username()));
-        }
-        return ResponseEntity.ok().body(newUser);
+  @Autowired
+  private AuthenticationManager authenticationManager;
+
+  @Autowired
+  private JwtService jwtService;
+
+  @PostMapping("/register")
+  public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDto) {
+    logger.info("REGISTER");
+    UserEntity newUser = userService.register(registerDto);
+    if (newUser == null) {
+      logger.info("Creating user " + registerDto.username() + " failed. Username already exists.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(String.format("Nutzer mit Nutzernamen '%s' existiert bereits.", registerDto.username()));
     }
-
-    @PostMapping(value = "/login")
-  public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
-    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
-    String token = jwtService.generateToken(userDetailsServiceImpl.loadUserByUsername(request.username()));
-    return ResponseEntity.ok(new LoginResponseDTO(request.username(), token));
+    logger.info("New user " + registerDto.username() + " created.");
+    return ResponseEntity.ok().body(newUser);
   }
 
-  @PostMapping(value = "/validate")
-  public ResponseEntity<String> validateToken(@RequestBody Map<String, String> request) {
-    UserDetails user = userDetailsServiceImpl.loadUserByUsername(request.get("username"));
-      if (userService.validate(request.get("token"), user)) {
-        return ResponseEntity.ok("Token is valid");
-      }
-      else {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token not valid");
-      }
+  @PostMapping(value = "/login")
+  public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO request) {
+    logger.info("LOGIN");
+    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+    logger.info("User " + request.username() + " authenticated.");
+    String token = jwtService.generateToken(userDetailsServiceImpl.loadUserByUsername(request.username()));
+    return ResponseEntity.ok(new LoginResponseDTO(request.username(), token));
   }
 }
