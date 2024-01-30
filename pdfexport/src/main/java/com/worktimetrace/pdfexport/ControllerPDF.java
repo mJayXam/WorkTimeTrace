@@ -6,21 +6,15 @@ import org.springframework.web.client.RestTemplate;
 import com.worktimetrace.DataTypes.Bill;
 import com.worktimetrace.DataTypes.Hours;
 
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.text.DocumentException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,15 +28,21 @@ import com.worktimetrace.Security.*;
 
 @RestController
 public class ControllerPDF {
+
+        Logger logger = LoggerFactory.getLogger(getClass());
+
         @GetMapping("bill/{rate}")
-        public void getMethodName(@PathVariable float rate, HttpServletResponse response,
+        public void getBill(@PathVariable float rate, HttpServletResponse response,
                         @RequestHeader("username") String username,
                         @RequestHeader("Authorization") String token)
                         throws DocumentException, IOException {
+
+                logger.info("GET BILL");
                 var UserResp = SecurityManger.wrongToken(username, token.substring("Bearer ".length()));
                 if (!UserResp.getStatusCode()
                                 .is2xxSuccessful()) {
-                        response.setStatus(401);;
+                        response.setStatus(401);
+                        ;
                         return;
                 }
                 ArrayList<Hours> hourList = getHourList(UserResp.getBody(), token.substring(("Bearer ").length()));
@@ -63,6 +63,7 @@ public class ControllerPDF {
 
                 response.getOutputStream().write(pdfBytes);
                 response.getOutputStream().flush();
+                logger.info("getBill OK");
         }
 
         private ArrayList<Hours> getHourList(User user, String token) {
@@ -72,20 +73,21 @@ public class ControllerPDF {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.add("username", user.getUsername());
-                headers.set("Authorization","Bearer " + token);
+                headers.set("Authorization", "Bearer " + token);
 
                 HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-                
+
                 ResponseEntity<ArrayList<Hours>> responseEntity;
-                try{
+                try {
                         responseEntity = rt.exchange(
-                            url,
-                            HttpMethod.GET,
-                            requestEntity,
-                            new ParameterizedTypeReference<ArrayList<Hours>>() {});
-                    }catch(Exception e){
+                                        url,
+                                        HttpMethod.GET,
+                                        requestEntity,
+                                        new ParameterizedTypeReference<ArrayList<Hours>>() {
+                                        });
+                } catch (Exception e) {
                         responseEntity = ResponseEntity.status(401).build();
-                    }
+                }
                 ArrayList<Hours> hourList = responseEntity.getBody();
                 return hourList;
         }
