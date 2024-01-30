@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class UIController {
+
+    @Value("${usermanagement.url}")
+    private String usermanagementUrl;
 
     @GetMapping("/")
     public String showLandingPage(Model model, HttpSession session) {
@@ -70,14 +74,14 @@ public class UIController {
         try {
             String requestJsonRegistration = objectMapper.writeValueAsString(user);
             ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
-                    "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/register", requestJsonRegistration);
+                    usermanagementUrl + "/auth/register", requestJsonRegistration);
 
             HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
             if (httpStatusCodeRegistration == HttpStatus.OK) {
                 LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
                 String requestJsonLogin = objectMapper.writeValueAsString(loginData);
                 ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
-                        "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJsonLogin);
+                        usermanagementUrl + "/auth/login", requestJsonLogin);
                 HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
                 if (httpStatusCodeLogin == HttpStatus.OK) {
                     UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
@@ -129,7 +133,7 @@ public class UIController {
         try {
             String requestJson = objectMapper.writeValueAsString(loginData);
             ResponseEntity<String> response = sendPostRequestToOtherService(
-                    "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJson);
+                    usermanagementUrl + "/auth/login", requestJson);
 
             HttpStatusCode httpStatusCode = response.getStatusCode();
 
