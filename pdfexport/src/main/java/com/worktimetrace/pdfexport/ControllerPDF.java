@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +29,12 @@ import com.worktimetrace.Security.*;
 
 @RestController
 public class ControllerPDF {
+
+
+    @Value("${timemanagement.url}")
+    private static String timemanagementUrl;
+
+
 
         Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -68,7 +75,7 @@ public class ControllerPDF {
 
         private ArrayList<Hours> getHourList(User user, String token) {
                 RestTemplate rt = new RestTemplate();
-                String url = "http://timemanagement:8080/byNID/" + user.getId();
+                String url = timemanagementUrl + "/byNID/" + user.getId();
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
