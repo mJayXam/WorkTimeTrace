@@ -14,12 +14,18 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class SecurityManger {
 
+
     @Value("${usermanagement.url}")
-    private static String usermanagementUrl;
+    private String usermanagementUrl;
+
+    private static SecurityManger singelton = new SecurityManger();
+    public void setUsermanagementUrl(String usermanagementUrl) {
+        this.usermanagementUrl = usermanagementUrl;
+    }
 
     public static ResponseEntity<User> wrongToken(String username, String token){
         RestTemplate rt = new RestTemplate();
-        String url = usermanagementUrl + "/user/info";
+        String url = singelton.usermanagementUrl + "/user/info";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("username", username);

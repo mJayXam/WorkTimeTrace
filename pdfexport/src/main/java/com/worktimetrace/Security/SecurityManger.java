@@ -17,10 +17,15 @@ public class SecurityManger {
     @Value("${usermanagement.url}")
     private static String usermanagementUrl;
 
+    private static SecurityManger singelton = new SecurityManger();
+    
+    public void setUsermanagementUrl(String usermanagementUrl) {
+        this.usermanagementUrl = usermanagementUrl;
+    }
 
     public static ResponseEntity<User> wrongToken(String username, String token){
         RestTemplate rt = new RestTemplate();
-        String url = usermanagementUrl + "/auth/validate";
+        String url = singelton.usermanagementUrl + "/auth/validate";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("username", username);
