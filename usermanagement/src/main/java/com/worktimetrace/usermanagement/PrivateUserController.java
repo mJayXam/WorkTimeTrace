@@ -51,5 +51,4 @@ public class PrivateUserController {
         logger.info("Return user info for " + headerUsername);
         return ResponseEntity.ok(userInfoDTO);
     }
-
 }
