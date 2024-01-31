@@ -3,6 +3,8 @@ package com.worktimetrace.timemanagement;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.worktimetrace.timemanagement.Database.Hours;
+import com.worktimetrace.timemanagement.Security.SecurityManager;
+import com.worktimetrace.timemanagement.Security.User;
 import com.worktimetrace.timemanagement.Database.HourRepo;
 import com.worktimetrace.timemanagement.Database.HourSender;
 
@@ -10,7 +12,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import com.worktimetrace.timemanagement.Security.SecurityManger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +29,16 @@ public class AccessController {
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
+    SecurityManager sec;
+
+    @Autowired
     HourRepo rep;
 
     @PostMapping("/all")
     public ResponseEntity<ArrayList<Hours>> findAll(@RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("FIND ALL");
-        if (!SecurityManger.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        if (!sec.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
@@ -49,7 +53,7 @@ public class AccessController {
     public ResponseEntity<Hours> findById(@PathVariable Long param, @RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("FIND BY ID");
-        if (!SecurityManger.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        if (!sec.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
@@ -66,7 +70,7 @@ public class AccessController {
     public ResponseEntity<String> insertOne(@RequestBody HourSender entity, @RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("INSERT ONE");
-        if (!SecurityManger.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        if (!sec.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
@@ -80,7 +84,7 @@ public class AccessController {
     public ResponseEntity<String> insertMany(@RequestBody List<HourSender> entity,
             @RequestHeader("username") String username, @RequestHeader("Authorization") String token) {
         logger.info("INSERT MANY");
-        if (!SecurityManger.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        if (!sec.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
@@ -92,17 +96,18 @@ public class AccessController {
         return ResponseEntity.ok("Spechern Erfolgreich");
     }
 
-    @GetMapping("/byNID/{param}")
-    public ResponseEntity<ArrayList<Hours>> findByNID(@PathVariable Long param,
+    @GetMapping("/byNID")
+    public ResponseEntity<?> findByNID(
             @RequestHeader("username") String username, @RequestHeader("Authorization") String token) {
         logger.info("FIND BY NID");
-        if (!SecurityManger.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        ResponseEntity<User> user = sec.wrongToken(username, token.substring("Bearer ".length()));
+        if (!user.getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
         }
         ArrayList<Hours> ret = new ArrayList<>();
-        rep.findByUserid(param).forEach(ret::add);
+        rep.findByUserid(user.getBody().getId()).forEach(ret::add);
         logger.info("findByNID OK");
         return ResponseEntity.ok(ret);
     }
@@ -113,7 +118,7 @@ public class AccessController {
             @RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("FIND BY NID FILTER BY MONTH");
-        if (!SecurityManger.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        if (!sec.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
