@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.worktimetrace.Security.*;
+import com.worktimetrace.Security.SecurityManager;
 
 @RestController
 public class ControllerPDF {
@@ -34,7 +36,8 @@ public class ControllerPDF {
     @Value("${timemanagement.url}")
     private static String timemanagementUrl;
 
-
+        @Autowired
+        SecurityManager sec;
 
         Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -45,7 +48,7 @@ public class ControllerPDF {
                         throws DocumentException, IOException {
 
                 logger.info("GET BILL");
-                var UserResp = SecurityManger.wrongToken(username, token.substring("Bearer ".length()));
+                var UserResp = sec.wrongToken(username, token.substring("Bearer ".length()));
                 if (!UserResp.getStatusCode()
                                 .is2xxSuccessful()) {
                         response.setStatus(401);
