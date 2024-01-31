@@ -12,6 +12,7 @@ import com.itextpdf.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 public class ControllerPDF {
@@ -37,6 +40,9 @@ public class ControllerPDF {
 
         @Autowired
         SecurityManager sec;
+
+        @Autowired
+        urlkeeper urk;
 
         Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -77,29 +83,24 @@ public class ControllerPDF {
 
         private ArrayList<Hours> getHourList(User user, String token) {
                 RestTemplate rt = new RestTemplate();
-                String url = timemanagementUrl + "/byNID/" + user.getId();
-
+                URI url = URI.create(urk.getUrl() + "/byNID");
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("Authorization","Bearer " + token);
                 headers.add("username", user.getUsername());
-                headers.set("Authorization", "Bearer " + token);
-
                 HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-
                 ResponseEntity<ArrayList<Hours>> responseEntity;
-                try {
-                        responseEntity = rt.exchange(
-                                        url,
-                                        HttpMethod.GET,
-                                        requestEntity,
-                                        new ParameterizedTypeReference<ArrayList<Hours>>() {
-                                        });
-                } catch (Exception e) {
-                        responseEntity = ResponseEntity.status(401).build();
+                try{
+                responseEntity =  rt.exchange(
+                        url,
+                        HttpMethod.GET,
+                        requestEntity,
+                        new ParameterizedTypeReference<ArrayList<Hours>>() {});
+                }catch(Exception e){
+                responseEntity = ResponseEntity.status(401).build();
                 }
-                ArrayList<Hours> hourList = responseEntity.getBody();
-                if (hourList == null)
+                if (responseEntity.getBody() == null)
                         return new ArrayList<Hours>();
-                return hourList;
+                return responseEntity.getBody();
         }
 }
