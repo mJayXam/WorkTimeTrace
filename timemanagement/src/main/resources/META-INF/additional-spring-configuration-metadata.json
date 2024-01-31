@@ -1,5 +1,12 @@
-{"properties": [{
-  "name": "management.endpoints.web.exposure.include",
-  "type": "java.lang.String",
-  "description": "A description for 'management.endpoints.web.exposure.include'"
-}]}
+{"properties": [
+  {
+    "name": "management.endpoints.web.exposure.include",
+    "type": "java.lang.String",
+    "description": "A description for 'management.endpoints.web.exposure.include'"
+  },
+  {
+    "name": "usermanagement.url",
+    "type": "java.lang.String",
+    "description": "A description for 'usermanagement.url'"
+  }
+]}
