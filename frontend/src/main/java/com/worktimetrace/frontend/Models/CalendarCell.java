@@ -7,6 +7,7 @@ public class CalendarCell {
     private int month;
     private int year;
     private boolean color;
+    private Double hourCount;
 
     public CalendarCell (LocalDate date, boolean color) {
         this.day = date.getDayOfMonth();
@@ -46,4 +47,13 @@ public class CalendarCell {
     public void setColor(boolean color) {
         this.color = color;
     }
+
+    public Double getHourCount() {
+        return hourCount;
+    }
+
+    public void setHourCount(Double hourCount) {
+        this.hourCount = hourCount;
+    }
+    
 }

@@ -147,7 +147,7 @@
                                     th:href="@{'KalenderTag?day=' + ${day.getDay} + '&month=' + ${day.getMonth} + '&year=' + ${day.getYear}}">
                                     <p th:id="dayNr + ${day.getDay()}" th:text="${day.getDay()}"
                                         th:class="${day.getColor()}? 'color-black' : 'color-gray'"></p>
-                                    <p th:id="pos + ${day.getDay()}"></p>
+                                    <p th:id="pos + ${day.getDay()}" th:text="${day.getHourCount()}"></p>
                                 </a>
                             </div>
                         </div>

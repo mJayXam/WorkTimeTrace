@@ -11,11 +11,12 @@ public class CalendarMonth {
     private CalendarCell[][] weeksAndDaysInMonth;
     private String monthYear;
 
-    public CalendarMonth(LocalDate date) {
+    public CalendarMonth(LocalDate date, ArrayList<HourSender> hourSenders) {
         this.selctedDate = date;
         this.monthYear = getMonthYearFromDate(date);
         this.daysInMonthCells = daysInMonthToArray(date);
         this.weeksAndDaysInMonth = fillWeeksInMonthArray(date);
+        fillCalendarEntrysInCalendarCellArray(hourSenders);
     }
 
     public String getMonthYear() {
@@ -101,6 +102,23 @@ public class CalendarMonth {
             pos++;
         }
         return ret;
+    }
+    
+
+    private void fillCalendarEntrysInCalendarCellArray(ArrayList<HourSender> hourSenders) {
+        for (int i = 0; i < weeksAndDaysInMonth.length; i++) {
+            for (int j = 0; j < weeksAndDaysInMonth[i].length; j++) {
+                for(HourSender hourSender : hourSenders){
+                    LocalDate localDate1 = LocalDate.of(weeksAndDaysInMonth[i][j].getYear(), weeksAndDaysInMonth[i][j].getMonth(), weeksAndDaysInMonth[i][j].getDay());
+                    LocalDate localDate2 = LocalDate.parse(hourSender.getDate());
+                    System.out.println("HourSenderDate: " + localDate2 + ", ArrayDate: " + localDate1);
+                    if(localDate1.toString().equals(localDate2.toString())) {
+                        weeksAndDaysInMonth[i][j].setHourCount(hourSender.getHourcount());
+                    }
+                    
+                }
+            }
+        }
     }
 
     private static boolean compareMonths(LocalDate selectedDate, LocalDate date) {

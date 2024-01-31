@@ -1,6 +1,8 @@
 package com.worktimetrace.frontend.Models;
 
 public class HourSender {
+    private Long id;
+
     private Double hourcount;
 
     private String date;
@@ -14,6 +16,21 @@ public class HourSender {
         this.hourcount = hourcount;
         this.date = date;
         this.userid = Long.parseLong(userid);
+    }
+
+    public HourSender(Double hourcount, String date, String userid, Long id){
+        this.hourcount = hourcount;
+        this.date = date;
+        this.userid = Long.parseLong(userid);
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Double getHourcount() {
@@ -46,7 +63,7 @@ public class HourSender {
 
     @Override
     public String toString() {
-        return "HourSender [hourcount=" + hourcount + ", date=" + date + ", userid=" + userid + "]";
+        return "HourSender [hourcount=" + hourcount + ", date=" + date + ", userid=" + userid + ", id=" + id + "]";
     }
 
 }

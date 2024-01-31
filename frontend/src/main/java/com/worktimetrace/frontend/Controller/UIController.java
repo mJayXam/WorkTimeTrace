@@ -1,8 +1,11 @@
 package com.worktimetrace.frontend.Controller;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -164,7 +167,7 @@ public class UIController {
     }
 
     @GetMapping("/Kalender")
-    public String showCalendarView(@RequestParam(name = "month", required = false) int parameter, Model model,
+    public String showCalendarView(@RequestParam(name = "month", required = true) int month, Model model,
             HttpSession session) {
         String[] dayStrings = { "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So" };
         ArrayList<String> days = new ArrayList<>(Arrays.asList(dayStrings));
@@ -173,34 +176,36 @@ public class UIController {
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
         System.out.println(token);
+
+
         if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
             session.setAttribute("loginSuccess", true);
             session.setAttribute("token", token);
             model.addAttribute("kalender", true);
             model.addAttribute("username", username);
+            if (month == 0) {
+                ArrayList<HourSender> hourSenders = getPriviousAndNextMonthByDate(LocalDate.now(), username, token);
+                CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now(), hourSenders);
+                model.addAttribute("kalenderTage", days);
+                model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
+                model.addAttribute("title", calendarMonth.getMonthYear());
+                model.addAttribute("nextMonthUrl", "Kalender?month=" + (month + 1));
+                model.addAttribute("previousMonthUrl", "Kalender?month=" + (month - 1));
+            } else {
+                ArrayList<HourSender> hourSenders = getPriviousAndNextMonthByDate(LocalDate.now().plusMonths(month), username, token);
+                CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(month), hourSenders);
+                model.addAttribute("kalenderTage", days);
+                model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
+                model.addAttribute("title", calendarMonth.getMonthYear());
+                model.addAttribute("nextMonthUrl", "Kalender?month=" + (month + 1));
+                model.addAttribute("previousMonthUrl", "Kalender?month=" + (month - 1));
+            }
+            return "index";
         } else {
             session.invalidate();
             return "redirect:/";
         }
-
-        if (parameter == 0) {
-            CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now());
-            model.addAttribute("kalenderTage", days);
-            model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
-            model.addAttribute("title", calendarMonth.getMonthYear());
-            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
-            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
-        } else {
-            CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(parameter));
-            model.addAttribute("kalenderTage", days);
-            model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
-            model.addAttribute("title", calendarMonth.getMonthYear());
-            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
-            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
-        }
-
-        return "index";
     }
 
     @GetMapping("/KalenderTag")
@@ -372,5 +377,101 @@ public class UIController {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private List<HourSender> getAllKalenderEntrysOfUser(String username, String token) {
+        RestTemplate rt = new RestTemplate();
+        String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNID";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, String.class);
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                String jsonResponse = responseEntity.getBody();
+                
+                ObjectMapper objectMapper = new ObjectMapper();
+                HourSender[] hourSenders = objectMapper.readValue(jsonResponse, HourSender[].class);
+                return Arrays.asList(hourSenders);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private List<HourSender> getAllKalenderEntrysOfUserInMonth(String username, String token, String monthYear) {
+        RestTemplate rt = new RestTemplate();
+        String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNIDforMonth/" + monthYear;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, String.class);
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                String jsonResponse = responseEntity.getBody();
+                if(jsonResponse != null) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    HourSender[] hourSenders = objectMapper.readValue(jsonResponse, HourSender[].class);
+                    return Arrays.asList(hourSenders);
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private ArrayList<HourSender> getPriviousAndNextMonthByDate(LocalDate date, String username, String token) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM", Locale.GERMAN);
+        LocalDate thisMonthDate = date;
+        LocalDate nextMonthDate = date.plusMonths(1);
+        LocalDate previousMonthDate = date.minusMonths(1);
+
+        String monthYearThisMonth = thisMonthDate.format(formatter);
+        String monthYearPreviousMonth = nextMonthDate.format(formatter);
+        String monthYearNextMonth = previousMonthDate.format(formatter);
+
+        List<HourSender> thisMonth = getAllKalenderEntrysOfUserInMonth(username, token, monthYearThisMonth);
+        List<HourSender> previousMonth = getAllKalenderEntrysOfUserInMonth(username, token, monthYearPreviousMonth);
+        List<HourSender> nextMonth = getAllKalenderEntrysOfUserInMonth(username, token, monthYearNextMonth);
+
+        if (thisMonth != null || nextMonth != null || previousMonth != null) {
+
+            ArrayList<HourSender> returnList = new ArrayList<>();
+
+            if(thisMonth != null) {
+                returnList.addAll(new ArrayList<>(thisMonth));
+            }
+            if(nextMonth != null) {
+                returnList.addAll(new ArrayList<>(nextMonth));
+            }
+            if(previousMonth != null) {
+                returnList.addAll(new ArrayList<>(previousMonth));
+            }
+
+            return returnList;
+        } else {
+            return null;
+        }
     }
 }
