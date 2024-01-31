@@ -34,7 +34,7 @@ public class AccessController {
     @Autowired
     HourRepo rep;
 
-    @PostMapping("/all")
+    @GetMapping("/all")
     public ResponseEntity<ArrayList<Hours>> findAll(@RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("FIND ALL");
@@ -49,7 +49,7 @@ public class AccessController {
         return ResponseEntity.ok(ret);
     }
 
-    @PostMapping("/byID/{param}")
+    @GetMapping("/byID/{param}")
     public ResponseEntity<Hours> findById(@PathVariable Long param, @RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("FIND BY ID");
