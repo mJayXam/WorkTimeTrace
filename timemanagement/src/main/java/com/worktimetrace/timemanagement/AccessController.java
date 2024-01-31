@@ -112,20 +112,21 @@ public class AccessController {
         return ResponseEntity.ok(ret);
     }
 
-    @GetMapping("/byNIDforMonth/{uid}/{month}")
-    public ResponseEntity<ArrayList<Hours>> findByNIDfilterByMonth(@PathVariable Long uid,
+    @GetMapping("/byNIDforMonth/{month}")
+    public ResponseEntity<ArrayList<Hours>> findByNIDfilterByMonth(
             @PathVariable String month,
             @RequestHeader("username") String username,
             @RequestHeader("Authorization") String token) {
         logger.info("FIND BY NID FILTER BY MONTH");
-        if (!sec.wrongToken(username, token.substring("Bearer ".length())).getStatusCode()
+        var user = sec.wrongToken(username, token.substring("Bearer ".length()));
+        if (!user.getStatusCode()
                 .is2xxSuccessful()) {
             logger.info("Unauthorized");
             return ResponseEntity.status(401).build();
         }
         ArrayList<Hours> ret = new ArrayList<>();
         Date compD = Date.valueOf(month + "-01");
-        rep.findByUserid(uid).stream()
+        rep.findByUserid(user.getBody().getId()).stream()
                 .filter(e -> ((e.getDate().toLocalDate().getMonth() == compD.toLocalDate().getMonth())
                         && (e.getDate().toLocalDate().getYear() == compD.toLocalDate().getYear())))
                 .forEach(ret::add);
