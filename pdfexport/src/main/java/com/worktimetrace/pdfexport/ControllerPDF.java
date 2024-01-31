@@ -5,7 +5,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.worktimetrace.DataTypes.Bill;
 import com.worktimetrace.DataTypes.Hours;
-
+import com.worktimetrace.pdfexport.Security.*;
+import com.worktimetrace.pdfexport.Security.SecurityManager;
 import com.itextpdf.text.DocumentException;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,8 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
-import com.worktimetrace.Security.*;
-import com.worktimetrace.Security.SecurityManager;
 
 @RestController
 public class ControllerPDF {

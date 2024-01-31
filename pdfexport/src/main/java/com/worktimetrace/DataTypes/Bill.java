@@ -11,7 +11,7 @@ import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
-import com.worktimetrace.Security.User;
+import com.worktimetrace.pdfexport.Security.User;
 
 public class Bill {
     ByteArrayOutputStream baos;
