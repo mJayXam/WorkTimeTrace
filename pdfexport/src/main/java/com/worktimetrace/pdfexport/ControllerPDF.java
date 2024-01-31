@@ -98,6 +98,8 @@ public class ControllerPDF {
                         responseEntity = ResponseEntity.status(401).build();
                 }
                 ArrayList<Hours> hourList = responseEntity.getBody();
+                if (hourList == null)
+                        return new ArrayList<Hours>();
                 return hourList;
         }
 }
