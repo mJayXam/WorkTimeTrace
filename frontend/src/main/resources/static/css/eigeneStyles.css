@@ -65,3 +65,7 @@
 .hover:hover {
     background-color: lightgray;
 }
+
+.calendar-link {
+    text-decoration: none;
+}

@@ -4,9 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worktimetrace.frontend.Models.CalendarMonth;
+import com.worktimetrace.frontend.Models.HourDate;
+import com.worktimetrace.frontend.Models.HourSender;
 import com.worktimetrace.frontend.Models.LoginData;
 import com.worktimetrace.frontend.Models.User;
 import com.worktimetrace.frontend.Models.UserToken;
@@ -32,9 +35,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class UIController {
-
-    @Value("${usermanagement.url}")
-    private String usermanagementUrl;
 
     @GetMapping("/")
     public String showLandingPage(Model model, HttpSession session) {
@@ -73,15 +73,13 @@ public class UIController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String requestJsonRegistration = objectMapper.writeValueAsString(user);
-            ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
-                    usermanagementUrl + "/auth/register", requestJsonRegistration);
+            ResponseEntity<String> responseRegistration = sendPostRequestToOtherService("https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/register", requestJsonRegistration);
 
             HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
             if (httpStatusCodeRegistration == HttpStatus.OK) {
                 LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
                 String requestJsonLogin = objectMapper.writeValueAsString(loginData);
-                ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
-                        usermanagementUrl + "/auth/login", requestJsonLogin);
+                ResponseEntity<String> responseLogin = sendPostRequestToOtherService("https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJsonLogin);
                 HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
                 if (httpStatusCodeLogin == HttpStatus.OK) {
                     UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
@@ -132,8 +130,7 @@ public class UIController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String requestJson = objectMapper.writeValueAsString(loginData);
-            ResponseEntity<String> response = sendPostRequestToOtherService(
-                    usermanagementUrl + "/auth/login", requestJson);
+            ResponseEntity<String> response = sendPostRequestToOtherService("https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJson);
 
             HttpStatusCode httpStatusCode = response.getStatusCode();
 
@@ -167,7 +164,7 @@ public class UIController {
     }
 
     @GetMapping("/Kalender")
-    public String showKalenderView(@RequestParam(name = "month", required = false) int parameter, Model model,
+    public String showCalendarView(@RequestParam(name = "month", required = false) int parameter, Model model,
             HttpSession session) {
         String[] dayStrings = { "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So" };
         ArrayList<String> days = new ArrayList<>(Arrays.asList(dayStrings));
@@ -175,6 +172,7 @@ public class UIController {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
+        System.out.println(token);
         if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
             session.setAttribute("loginSuccess", true);
@@ -205,6 +203,63 @@ public class UIController {
         return "index";
     }
 
+    @GetMapping("/KalenderTag")
+    public String showCalendarDayView(@RequestParam(name = "day", required = true) int day,
+            @RequestParam(name = "month", required = true) int month,
+            @RequestParam(name = "year", required = true) int year, Model model, HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        LocalDate datum = LocalDate.of(year, month, day);
+
+        if (loggedIn != null && loggedIn) {
+            model.addAttribute("loggedIn", true);
+            session.setAttribute("loginSuccess", true);
+            session.setAttribute("token", token);
+            model.addAttribute("datum", datum);
+            model.addAttribute("username", username);
+            model.addAttribute("kalenderTag", true);
+            model.addAttribute("hourDate", new HourDate(datum.toString(), 0));
+            model.addAttribute("title", "Stunden buchen");
+        } else {
+            session.invalidate();
+            return "redirect:/";
+        }
+
+        return "index";
+    }
+
+    @PostMapping("/KalenderTag")
+    public String postCalendarDay(@ModelAttribute("hour") HourDate hour, Model model, HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+        System.out.println(hour.toString());
+
+        User user = getUserInfo(username, token);
+
+        if (user != null) {
+            ResponseEntity<String> response = insertOneHourEntry(hour, user, username, token);
+            if (response != null) {
+                if (loggedIn != null && loggedIn) {
+                    model.addAttribute("loggedIn", true);
+                    session.setAttribute("loginSuccess", true);
+                    session.setAttribute("token", token);
+                    model.addAttribute("username", username);
+                    return "redirect:/Kalender?month=0";
+                } else {
+                    session.invalidate();
+                    return "redirect:/";
+                }
+            }
+        }
+
+        session.invalidate();
+        return "redirect:/";
+
+    }
+
     @GetMapping("/Monatsuebersicht")
     public String showMonatsuebersichtView(Model model, HttpSession session) {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
@@ -226,17 +281,96 @@ public class UIController {
         return "index";
     }
 
-    public ResponseEntity<String> sendPostRequestToOtherService(String url, String body) {
+    @GetMapping("/Benutzerinformationen")
+    public String showBenutzerinformationenView(Model model, HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        if (loggedIn != null && loggedIn) {
+            User user = getUserInfo(username, token);
+            if (user != null) {
+                model.addAttribute("loggedIn", true);
+                session.setAttribute("loginSuccess", true);
+                session.setAttribute("token", token);
+                model.addAttribute("username", username);
+                model.addAttribute("benutzerinformationen", true);
+                model.addAttribute("user", user);
+                model.addAttribute("title", "Benutzerinformationen");
+            }
+        } else {
+            session.invalidate();
+            return "redirect:/";
+        }
+        return "index";
+    }
+
+    private ResponseEntity<String> sendPostRequestToOtherService(String url, String body) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // Annahme: Du möchtest Daten im JSON-Format senden
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
-        // Führe die POST-Anfrage durch
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
 
         return response;
+    }
+
+    private User getUserInfo(String username, String token) {
+        RestTemplate rt = new RestTemplate();
+        String url = "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/user/info";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<User> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<User>() {});
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                User user = responseEntity.getBody();
+                return user;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private ResponseEntity<String> insertOneHourEntry(HourDate hour, User user, String username, String token) {
+        HourSender hourSender = new HourSender(hour.getHour(), hour.getDate(), user.getId());
+        String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/insertOne";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders header = new HttpHeaders();
+        header.setContentType(MediaType.APPLICATION_JSON);
+        header.add("username", username);
+        header.set("Authorization", "Bearer " + token);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            String requestJson = objectMapper.writeValueAsString(hourSender);
+            System.out.println(requestJson);
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, header);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+
+            HttpStatusCode httpStatusCode = response.getStatusCode();
+            if (httpStatusCode == HttpStatus.OK) {
+                return response;
+            } else {
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

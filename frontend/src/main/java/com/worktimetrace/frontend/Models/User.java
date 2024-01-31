@@ -2,6 +2,7 @@ package com.worktimetrace.frontend.Models;
 
 public class User {
 
+    private String id;
     private String firstname;
     private String lastname;
     private String username;
@@ -26,7 +27,12 @@ public class User {
         this.password = password;
     }
 
-    
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getFirstname() {
         return firstname;
     }
@@ -78,8 +84,9 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [firstname=" + firstname + ", lastname=" + lastname + ", username=" + username + ", street="
-                + street + ", housenumber=" + housenumber + ", zipcode=" + zipcode + ", city=" + city + ", password="
-                + password + "]";
+        return "User [id=" + id + ", firstname=" + firstname + ", lastname=" + lastname + ", username=" + username
+                + ", street=" + street + ", housenumber=" + housenumber + ", zipcode=" + zipcode + ", city=" + city
+                + ", password=" + password + "]";
     }
+
 }
