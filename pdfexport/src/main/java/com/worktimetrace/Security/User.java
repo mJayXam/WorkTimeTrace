@@ -1,13 +1,24 @@
 package com.worktimetrace.Security;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class User {
+    @JsonProperty("id")
     private Long id;
+    @JsonProperty("firstname")
     private String firstname;
+    @JsonProperty("lastname")
     private String lastname;
+    @JsonProperty("username")
     private String username;
+    @JsonProperty("street")
     private String street;
+    @JsonProperty("housenumber")
     private int housenumber;
+    @JsonProperty("zipcode")
     private String zipcode;
+    @JsonProperty("city")
     private String city;
 
     public User() {
@@ -15,7 +26,7 @@ public class User {
 
     public User(Long id, String firstname, String lastname, String username, String street, int housenumber, String zipcode,
             String city) {
-        this.id = id;
+        this.id = id;        
         this.firstname = firstname;
         this.lastname = lastname;
         this.username = username;
