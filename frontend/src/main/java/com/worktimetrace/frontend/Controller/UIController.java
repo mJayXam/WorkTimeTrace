@@ -1,5 +1,6 @@
 package com.worktimetrace.frontend.Controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,9 +29,11 @@ import com.worktimetrace.frontend.Models.CalendarMonth;
 import com.worktimetrace.frontend.Models.HourDate;
 import com.worktimetrace.frontend.Models.HourSender;
 import com.worktimetrace.frontend.Models.LoginData;
+import com.worktimetrace.frontend.Models.PDFExport;
 import com.worktimetrace.frontend.Models.User;
 import com.worktimetrace.frontend.Models.UserToken;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,13 +81,15 @@ public class UIController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String requestJsonRegistration = objectMapper.writeValueAsString(user);
-            ResponseEntity<String> responseRegistration = sendPostRequestToOtherService("https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/register", requestJsonRegistration);
+            ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
+                    "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/register", requestJsonRegistration);
 
             HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
             if (httpStatusCodeRegistration == HttpStatus.OK) {
                 LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
                 String requestJsonLogin = objectMapper.writeValueAsString(loginData);
-                ResponseEntity<String> responseLogin = sendPostRequestToOtherService("https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJsonLogin);
+                ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
+                        "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJsonLogin);
                 HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
                 if (httpStatusCodeLogin == HttpStatus.OK) {
                     UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
@@ -135,7 +140,8 @@ public class UIController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             String requestJson = objectMapper.writeValueAsString(loginData);
-            ResponseEntity<String> response = sendPostRequestToOtherService("https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJson);
+            ResponseEntity<String> response = sendPostRequestToOtherService(
+                    "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJson);
 
             HttpStatusCode httpStatusCode = response.getStatusCode();
 
@@ -179,7 +185,6 @@ public class UIController {
         String token = (String) session.getAttribute("token");
         System.out.println(token);
 
-
         if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
             session.setAttribute("loginSuccess", true);
@@ -195,7 +200,8 @@ public class UIController {
                 model.addAttribute("nextMonthUrl", "Kalender?month=" + (month + 1));
                 model.addAttribute("previousMonthUrl", "Kalender?month=" + (month - 1));
             } else {
-                ArrayList<HourSender> hourSenders = getPriviousAndNextMonthByDate(LocalDate.now().plusMonths(month), username, token);
+                ArrayList<HourSender> hourSenders = getPriviousAndNextMonthByDate(LocalDate.now().plusMonths(month),
+                        username, token);
                 CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(month), hourSenders);
                 model.addAttribute("kalenderTage", days);
                 model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
@@ -261,13 +267,11 @@ public class UIController {
                 }
             }
         }
-
         session.invalidate();
         return "redirect:/";
-
     }
 
-    @GetMapping("/Monatsuebersicht")
+    @GetMapping("/Export")
     public String showMonatsuebersichtView(Model model, HttpSession session) {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
@@ -278,14 +282,52 @@ public class UIController {
             session.setAttribute("loginSuccess", true);
             session.setAttribute("token", token);
             model.addAttribute("username", username);
-            model.addAttribute("monatsuebersicht", true);
-            model.addAttribute("title", "Monatsübersicht");
+            model.addAttribute("export", true);
+            model.addAttribute("pdfExport", new PDFExport());
+            model.addAttribute("title", "Export");
         } else {
             session.invalidate();
             return "redirect:/";
         }
 
         return "index";
+    }
+
+    @PostMapping("/Export")
+    public void getExportPDF(@ModelAttribute("pdfExport") PDFExport pdfExport, Model model, HttpSession session, HttpServletResponse response) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+        System.out.println(pdfExport.toString());
+
+        byte[] pdf = getExportPDF(username, token, Double.toString(pdfExport.getHourRate()));
+        System.out.println(pdf);
+        if (pdf != null) {
+            try {
+                response.setContentType("application/pdf");
+                response.setContentLength(pdf.length);
+                response.setHeader("Content-Disposition", "attachment; filename=Abrechnung.pdf");
+
+                response.getOutputStream().write(pdf);
+                response.getOutputStream().flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (loggedIn != null && loggedIn) {
+                model.addAttribute("loggedIn", true);
+                session.setAttribute("loginSuccess", true);
+                session.setAttribute("token", token);
+                model.addAttribute("username", username);
+                return;
+            } else {
+                session.invalidate();
+                return;
+            }
+        }
+
+        session.invalidate();
+        return;
+        
     }
 
     @GetMapping("/Benutzerinformationen")
@@ -335,7 +377,9 @@ public class UIController {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<User> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<User>() {});
+            ResponseEntity<User> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity,
+                    new ParameterizedTypeReference<User>() {
+                    });
 
             HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
 
@@ -381,34 +425,40 @@ public class UIController {
         return null;
     }
 
-    /*private List<HourSender> getAllKalenderEntrysOfUser(String username, String token) {
-        RestTemplate rt = new RestTemplate();
-        String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNID";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("username", username);
-        headers.set("Authorization", "Bearer " + token);
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-        try {
-            ResponseEntity<String> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, String.class);
-
-            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
-
-            if (httpStatusCode == HttpStatus.OK) {
-                String jsonResponse = responseEntity.getBody();
-                
-                ObjectMapper objectMapper = new ObjectMapper();
-                HourSender[] hourSenders = objectMapper.readValue(jsonResponse, HourSender[].class);
-                return Arrays.asList(hourSenders);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }*/
+    /*
+     * private List<HourSender> getAllKalenderEntrysOfUser(String username, String
+     * token) {
+     * RestTemplate rt = new RestTemplate();
+     * String url =
+     * "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNID";
+     * 
+     * HttpHeaders headers = new HttpHeaders();
+     * headers.setContentType(MediaType.APPLICATION_JSON);
+     * headers.add("username", username);
+     * headers.set("Authorization", "Bearer " + token);
+     * 
+     * HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+     * try {
+     * ResponseEntity<String> responseEntity = rt.exchange(url, HttpMethod.GET,
+     * requestEntity, String.class);
+     * 
+     * HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+     * 
+     * if (httpStatusCode == HttpStatus.OK) {
+     * String jsonResponse = responseEntity.getBody();
+     * 
+     * ObjectMapper objectMapper = new ObjectMapper();
+     * HourSender[] hourSenders = objectMapper.readValue(jsonResponse,
+     * HourSender[].class);
+     * return Arrays.asList(hourSenders);
+     * } else {
+     * return null;
+     * }
+     * } catch (Exception e) {
+     * return null;
+     * }
+     * }
+     */
 
     private List<HourSender> getAllKalenderEntrysOfUserInMonth(String username, String token, String monthYear) {
         RestTemplate rt = new RestTemplate();
@@ -427,13 +477,39 @@ public class UIController {
 
             if (httpStatusCode == HttpStatus.OK) {
                 String jsonResponse = responseEntity.getBody();
-                if(jsonResponse != null) {
+                if (jsonResponse != null) {
                     ObjectMapper objectMapper = new ObjectMapper();
                     HourSender[] hourSenders = objectMapper.readValue(jsonResponse, HourSender[].class);
                     return Arrays.asList(hourSenders);
                 } else {
                     return null;
                 }
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private  byte[] getExportPDF(String username, String token, String hourRate) {
+        RestTemplate rt = new RestTemplate();
+        String url = "https://pdfexportservice-dev-5rt6jcn4da-uc.a.run.app/bill/" + hourRate;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<byte[]> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                byte[] response = responseEntity.getBody();
+                return response;
             } else {
                 return null;
             }
@@ -461,13 +537,13 @@ public class UIController {
 
             ArrayList<HourSender> returnList = new ArrayList<>();
 
-            if(thisMonth != null) {
+            if (thisMonth != null) {
                 returnList.addAll(new ArrayList<>(thisMonth));
             }
-            if(nextMonth != null) {
+            if (nextMonth != null) {
                 returnList.addAll(new ArrayList<>(nextMonth));
             }
-            if(previousMonth != null) {
+            if (previousMonth != null) {
                 returnList.addAll(new ArrayList<>(previousMonth));
             }
 
