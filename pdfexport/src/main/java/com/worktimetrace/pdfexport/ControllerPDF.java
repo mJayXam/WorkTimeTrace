@@ -5,22 +5,20 @@ import org.springframework.web.client.RestTemplate;
 
 import com.worktimetrace.DataTypes.Bill;
 import com.worktimetrace.DataTypes.Hours;
-
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.worktimetrace.pdfexport.Security.*;
+import com.worktimetrace.pdfexport.Security.SecurityManager;
 import com.itextpdf.text.DocumentException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,19 +28,35 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
-import com.worktimetrace.Security.*;
+
 
 @RestController
 public class ControllerPDF {
+
+
+    @Value("${timemanagement.url}")
+    private static String timemanagementUrl;
+
+        @Autowired
+        SecurityManager sec;
+
+        @Autowired
+        urlkeeper urk;
+
+        Logger logger = LoggerFactory.getLogger(getClass());
+
         @GetMapping("bill/{rate}")
-        public void getMethodName(@PathVariable float rate, HttpServletResponse response,
+        public void getBill(@PathVariable float rate, HttpServletResponse response,
                         @RequestHeader("username") String username,
                         @RequestHeader("Authorization") String token)
                         throws DocumentException, IOException {
-                var UserResp = SecurityManger.wrongToken(username, token.substring("Bearer ".length()));
+
+                logger.info("GET BILL");
+                var UserResp = sec.wrongToken(username, token.substring("Bearer ".length()));
                 if (!UserResp.getStatusCode()
                                 .is2xxSuccessful()) {
-                        response.setStatus(401);;
+                        response.setStatus(401);
+                        ;
                         return;
                 }
                 ArrayList<Hours> hourList = getHourList(UserResp.getBody(), token.substring(("Bearer ").length()));
@@ -63,30 +77,29 @@ public class ControllerPDF {
 
                 response.getOutputStream().write(pdfBytes);
                 response.getOutputStream().flush();
+                logger.info("getBill OK");
         }
 
         private ArrayList<Hours> getHourList(User user, String token) {
                 RestTemplate rt = new RestTemplate();
-                String url = "http://timemanagement:8080/byNID/" + user.getId();
-
+                URI url = URI.create(urk.getUrl() + "/byNID");
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.add("username", user.getUsername());
                 headers.set("Authorization","Bearer " + token);
-
+                headers.add("username", user.getUsername());
                 HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-                
                 ResponseEntity<ArrayList<Hours>> responseEntity;
                 try{
-                        responseEntity = rt.exchange(
-                            url,
-                            HttpMethod.GET,
-                            requestEntity,
-                            new ParameterizedTypeReference<ArrayList<Hours>>() {});
-                    }catch(Exception e){
-                        responseEntity = ResponseEntity.status(401).build();
-                    }
-                ArrayList<Hours> hourList = responseEntity.getBody();
-                return hourList;
+                responseEntity =  rt.exchange(
+                        url,
+                        HttpMethod.GET,
+                        requestEntity,
+                        new ParameterizedTypeReference<ArrayList<Hours>>() {});
+                }catch(Exception e){
+                responseEntity = ResponseEntity.status(401).build();
+                }
+                if (responseEntity.getBody() == null)
+                        return new ArrayList<Hours>();
+                return responseEntity.getBody();
         }
 }
