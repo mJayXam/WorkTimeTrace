@@ -142,7 +142,7 @@
                                 </div>
                             </div>
                             <div th:each="week, weekStat :${datum}" class="h-100 flexBox-row-layout m-3">
-                                <a th:each="day, dayStat :${week}" class="calendar-link w-100 borderSchema vh-10 mx-1"
+                                <a th:each="day, dayStat :${week}" class="calendar-link w-100 borderSchema vh-10 mx-1 hover"
                                     th:href="@{'KalenderTag?day=' + ${day.getDay} + '&month=' + ${day.getMonth} + '&year=' + ${day.getYear}}">
                                     <p th:id="dayNr + ${day.getDay()}" th:text="${day.getDay()}"
                                         th:class="${day.getColor()}? 'color-black' : 'color-gray'"></p>
