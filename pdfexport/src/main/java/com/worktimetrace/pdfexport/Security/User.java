@@ -1,6 +1,5 @@
 package com.worktimetrace.pdfexport.Security;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class User {
