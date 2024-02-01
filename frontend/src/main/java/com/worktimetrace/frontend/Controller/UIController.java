@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -379,7 +381,7 @@ public class UIController {
         return null;
     }
 
-    private List<HourSender> getAllKalenderEntrysOfUser(String username, String token) {
+    /*private List<HourSender> getAllKalenderEntrysOfUser(String username, String token) {
         RestTemplate rt = new RestTemplate();
         String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNID";
 
@@ -406,7 +408,7 @@ public class UIController {
         } catch (Exception e) {
             return null;
         }
-    }
+    }*/
 
     private List<HourSender> getAllKalenderEntrysOfUserInMonth(String username, String token, String monthYear) {
         RestTemplate rt = new RestTemplate();
@@ -469,6 +471,7 @@ public class UIController {
                 returnList.addAll(new ArrayList<>(previousMonth));
             }
 
+            Collections.sort(returnList, Comparator.comparing(HourSender::getDate));
             return returnList;
         } else {
             return null;

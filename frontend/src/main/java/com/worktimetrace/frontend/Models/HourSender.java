@@ -18,13 +18,6 @@ public class HourSender {
         this.userid = Long.parseLong(userid);
     }
 
-    public HourSender(Double hourcount, String date, String userid, Long id){
-        this.hourcount = hourcount;
-        this.date = date;
-        this.userid = Long.parseLong(userid);
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }
@@ -65,5 +58,4 @@ public class HourSender {
     public String toString() {
         return "HourSender [hourcount=" + hourcount + ", date=" + date + ", userid=" + userid + ", id=" + id + "]";
     }
-
 }
