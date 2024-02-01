@@ -4,6 +4,7 @@ An application that can be used to record and manage working hours. It is primar
 
 # Documentation
 ## API of REST-Controllers
+
 ### Timemanagement
 All Urls privided by this microservice require authorisation.
 This is done through two Values that need to be present in the header of the request.
@@ -127,9 +128,97 @@ response:
 ...
 ]
 ```
+
+
 ### pdfexport
 #### /bill/{rate}
 Returns the generated bill as byte[]
 GET Request
 Authorization is required
 Rate is set in Path 
+
+
+### Usermanagement
+Usermanagement offers an open and a private controller.
+Authorization for path /user/* equals timemanagement.
+
+### Open Controller
+
+### /auth/register
+Register user and save user information
+Returns the created user entity
+POST Request
+No authorization
+Validation (frontend in progress): everything required, housenumber between 1 and 9999, zipcode five digits
+body:
+```json
+{
+    "username": "String",
+    "password": "String",
+    "firstname": "String",
+    "lastname": "String",
+    "street": "String",
+    "housenumber": "int",
+    "zipcode": "String",
+    "city": "String"
+}
+```
+Return format:
+```json
+{
+    "id": "int",
+    "username": "String",
+    "password": "String/Hash",
+    "firstname": "String",
+    "lastname": "String",
+    "street": "String",
+    "housenumber": "int",
+    "zipcode": "String",
+    "city": "String",
+    "roles": [
+        "ROLE_USER"
+    ]
+}
+```
+Currently "User" is the only available role, "Admin" could follow in the future
+
+### /auth/login
+Returns the username and the generated JSON Web Token
+POST Request
+No authorization
+Validation (frontend in progress): everything required
+body:
+```json
+{
+    "username": "String",
+    "password": "String"
+}
+```
+Return format:
+```json
+{
+    "username": "String",
+    "token": "String/JWT"
+}
+```
+
+### Private Controller
+
+### /user/info
+Returns information about the given user
+GET Request
+Only requires Authorization
+
+Return format:
+```json
+{
+    "id": "bigint",
+    "firstname": "String",
+    "lastname": "String",
+    "username": "String",
+    "street": "String",
+    "housenumber": "int",
+    "zipcode": "String",
+    "city": "String"
+}
+```

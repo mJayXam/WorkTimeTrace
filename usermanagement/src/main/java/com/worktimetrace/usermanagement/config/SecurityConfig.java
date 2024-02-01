@@ -56,13 +56,13 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // Cross-Site-Request-Forgery
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/auth/*")
                         .permitAll()
                         .anyRequest().authenticated())
-                .httpBasic(withDefaults())
-                .formLogin(withDefaults())
+                .httpBasic(withDefaults()) // no effect
+                .formLogin(withDefaults()) // no effect
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
