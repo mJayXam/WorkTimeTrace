@@ -132,4 +132,4 @@ response:
 Returns the generated bill as byte[]
 GET Request
 Authorization is required
-Rate is set in Path
+Rate is set in Path 
