@@ -1,12 +1,20 @@
 package com.worktimetrace.frontend.Controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,10 +27,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worktimetrace.frontend.Models.CalendarMonth;
+import com.worktimetrace.frontend.Models.HourDate;
+import com.worktimetrace.frontend.Models.HourSender;
 import com.worktimetrace.frontend.Models.LoginData;
+import com.worktimetrace.frontend.Models.PDFExport;
 import com.worktimetrace.frontend.Models.User;
 import com.worktimetrace.frontend.Models.UserToken;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,8 +45,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class UIController {
 
-    @Value("${usermanagement.url}")
-    private String usermanagementUrl;
+    @Autowired
+    private UrlManager urlM;
 
     @GetMapping("/")
     public String showLandingPage(Model model, HttpSession session) {
@@ -74,14 +86,14 @@ public class UIController {
         try {
             String requestJsonRegistration = objectMapper.writeValueAsString(user);
             ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
-                    usermanagementUrl + "/auth/register", requestJsonRegistration);
+                    urlM.getUserUrl()+"/auth/register", requestJsonRegistration);
 
             HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
             if (httpStatusCodeRegistration == HttpStatus.OK) {
                 LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
                 String requestJsonLogin = objectMapper.writeValueAsString(loginData);
                 ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
-                        usermanagementUrl + "/auth/login", requestJsonLogin);
+                        urlM.getUserUrl()+"/auth/login", requestJsonLogin);
                 HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
                 if (httpStatusCodeLogin == HttpStatus.OK) {
                     UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
@@ -133,7 +145,7 @@ public class UIController {
         try {
             String requestJson = objectMapper.writeValueAsString(loginData);
             ResponseEntity<String> response = sendPostRequestToOtherService(
-                    usermanagementUrl + "/auth/login", requestJson);
+                    urlM.getUserUrl()+"/auth/login", requestJson);
 
             HttpStatusCode httpStatusCode = response.getStatusCode();
 
@@ -167,7 +179,7 @@ public class UIController {
     }
 
     @GetMapping("/Kalender")
-    public String showKalenderView(@RequestParam(name = "month", required = false) int parameter, Model model,
+    public String showCalendarView(@RequestParam(name = "month", required = true) int month, Model model,
             HttpSession session) {
         String[] dayStrings = { "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So" };
         ArrayList<String> days = new ArrayList<>(Arrays.asList(dayStrings));
@@ -175,37 +187,93 @@ public class UIController {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
+
         if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
             session.setAttribute("loginSuccess", true);
             session.setAttribute("token", token);
             model.addAttribute("kalender", true);
             model.addAttribute("username", username);
+            if (month == 0) {
+                ArrayList<HourSender> hourSenders = getPriviousAndNextMonthByDate(LocalDate.now(), username, token);
+                CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now(), hourSenders);
+                model.addAttribute("kalenderTage", days);
+                model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
+                model.addAttribute("title", calendarMonth.getMonthYear());
+                model.addAttribute("nextMonthUrl", "Kalender?month=" + (month + 1));
+                model.addAttribute("previousMonthUrl", "Kalender?month=" + (month - 1));
+            } else {
+                ArrayList<HourSender> hourSenders = getPriviousAndNextMonthByDate(LocalDate.now().plusMonths(month),
+                        username, token);
+                CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(month), hourSenders);
+                model.addAttribute("kalenderTage", days);
+                model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
+                model.addAttribute("title", calendarMonth.getMonthYear());
+                model.addAttribute("nextMonthUrl", "Kalender?month=" + (month + 1));
+                model.addAttribute("previousMonthUrl", "Kalender?month=" + (month - 1));
+            }
+            return "index";
+        } else {
+            session.invalidate();
+            return "redirect:/";
+        }
+    }
+
+    @GetMapping("/KalenderTag")
+    public String showCalendarDayView(@RequestParam(name = "day", required = true) int day,
+            @RequestParam(name = "month", required = true) int month,
+            @RequestParam(name = "year", required = true) int year, Model model, HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        LocalDate datum = LocalDate.of(year, month, day);
+
+        if (loggedIn != null && loggedIn) {
+            model.addAttribute("loggedIn", true);
+            session.setAttribute("loginSuccess", true);
+            session.setAttribute("token", token);
+            model.addAttribute("datum", datum);
+            model.addAttribute("username", username);
+            model.addAttribute("kalenderTag", true);
+            model.addAttribute("hourDate", new HourDate(datum.toString(), 0));
+            model.addAttribute("title", "Stunden buchen");
         } else {
             session.invalidate();
             return "redirect:/";
         }
 
-        if (parameter == 0) {
-            CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now());
-            model.addAttribute("kalenderTage", days);
-            model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
-            model.addAttribute("title", calendarMonth.getMonthYear());
-            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
-            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
-        } else {
-            CalendarMonth calendarMonth = new CalendarMonth(LocalDate.now().plusMonths(parameter));
-            model.addAttribute("kalenderTage", days);
-            model.addAttribute("datum", calendarMonth.getWeeksAndDaysInMonth());
-            model.addAttribute("title", calendarMonth.getMonthYear());
-            model.addAttribute("nextMonthUrl", "Kalender?month=" + (parameter + 1));
-            model.addAttribute("previousMonthUrl", "Kalender?month=" + (parameter - 1));
-        }
-
         return "index";
     }
 
-    @GetMapping("/Monatsuebersicht")
+    @PostMapping("/KalenderTag")
+    public String postCalendarDay(@ModelAttribute("hour") HourDate hour, Model model, HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        User user = getUserInfo(username, token);
+
+        if (user != null) {
+            ResponseEntity<String> response = insertOneHourEntry(hour, user, username, token);
+            if (response != null) {
+                if (loggedIn != null && loggedIn) {
+                    model.addAttribute("loggedIn", true);
+                    session.setAttribute("loginSuccess", true);
+                    session.setAttribute("token", token);
+                    model.addAttribute("username", username);
+                    return "redirect:/Kalender?month=0";
+                } else {
+                    session.invalidate();
+                    return "redirect:/";
+                }
+            }
+        }
+        session.invalidate();
+        return "redirect:/";
+    }
+
+    @GetMapping("/Export")
     public String showMonatsuebersichtView(Model model, HttpSession session) {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
@@ -216,8 +284,9 @@ public class UIController {
             session.setAttribute("loginSuccess", true);
             session.setAttribute("token", token);
             model.addAttribute("username", username);
-            model.addAttribute("monatsuebersicht", true);
-            model.addAttribute("title", "Monatsübersicht");
+            model.addAttribute("export", true);
+            model.addAttribute("pdfExport", new PDFExport());
+            model.addAttribute("title", "Export");
         } else {
             session.invalidate();
             return "redirect:/";
@@ -226,17 +295,226 @@ public class UIController {
         return "index";
     }
 
-    public ResponseEntity<String> sendPostRequestToOtherService(String url, String body) {
+    @PostMapping("/Export")
+    public void getExportPDF(@ModelAttribute("pdfExport") PDFExport pdfExport, Model model, HttpSession session, HttpServletResponse response) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        byte[] pdf = getExportPDF(username, token, Double.toString(pdfExport.getHourRate()));
+        if (pdf != null) {
+            try {
+                response.setContentType("application/pdf");
+                response.setContentLength(pdf.length);
+                response.setHeader("Content-Disposition", "attachment; filename=Abrechnung.pdf");
+
+                response.getOutputStream().write(pdf);
+                response.getOutputStream().flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (loggedIn != null && loggedIn) {
+                model.addAttribute("loggedIn", true);
+                session.setAttribute("loginSuccess", true);
+                session.setAttribute("token", token);
+                model.addAttribute("username", username);
+                return;
+            } else {
+                session.invalidate();
+                return;
+            }
+        }
+
+        session.invalidate();
+        return;
+        
+    }
+
+    @GetMapping("/Benutzerinformationen")
+    public String showBenutzerinformationenView(Model model, HttpSession session) {
+        Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        if (loggedIn != null && loggedIn) {
+            User user = getUserInfo(username, token);
+            if (user != null) {
+                model.addAttribute("loggedIn", true);
+                session.setAttribute("loginSuccess", true);
+                session.setAttribute("token", token);
+                model.addAttribute("username", username);
+                model.addAttribute("benutzerinformationen", true);
+                model.addAttribute("user", user);
+                model.addAttribute("title", "Benutzerinformationen");
+            }
+        } else {
+            session.invalidate();
+            return "redirect:/";
+        }
+        return "index";
+    }
+
+    private ResponseEntity<String> sendPostRequestToOtherService(String url, String body) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // Annahme: Du möchtest Daten im JSON-Format senden
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
-        // Führe die POST-Anfrage durch
         ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
 
         return response;
+    }
+
+    private User getUserInfo(String username, String token) {
+        RestTemplate rt = new RestTemplate();
+        String url = urlM.getUserUrl()+"/user/info";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<User> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity,
+                    new ParameterizedTypeReference<User>() {
+                    });
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                User user = responseEntity.getBody();
+                return user;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private ResponseEntity<String> insertOneHourEntry(HourDate hour, User user, String username, String token) {
+        HourSender hourSender = new HourSender(hour.getHour(), hour.getDate(), user.getId());
+        String url = urlM.getTimeUrl()+"/insertOne";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders header = new HttpHeaders();
+        header.setContentType(MediaType.APPLICATION_JSON);
+        header.add("username", username);
+        header.set("Authorization", "Bearer " + token);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            String requestJson = objectMapper.writeValueAsString(hourSender);
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, header);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+
+            HttpStatusCode httpStatusCode = response.getStatusCode();
+            if (httpStatusCode == HttpStatus.OK) {
+                return response;
+            } else {
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<HourSender> getAllKalenderEntrysOfUserInMonth(String username, String token, String monthYear) {
+        RestTemplate rt = new RestTemplate();
+        String url = urlM.getTimeUrl()+"/byNIDforMonth/" + monthYear;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<String> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, String.class);
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                String jsonResponse = responseEntity.getBody();
+                if (jsonResponse != null) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    HourSender[] hourSenders = objectMapper.readValue(jsonResponse, HourSender[].class);
+                    return Arrays.asList(hourSenders);
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private  byte[] getExportPDF(String username, String token, String hourRate) {
+        RestTemplate rt = new RestTemplate();
+        String url = urlM.getPdfUrl()+"/bill/" + hourRate;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("username", username);
+        headers.set("Authorization", "Bearer " + token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<byte[]> responseEntity = rt.exchange(url, HttpMethod.GET, requestEntity, byte[].class);
+
+            HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
+
+            if (httpStatusCode == HttpStatus.OK) {
+                byte[] response = responseEntity.getBody();
+                return response;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private ArrayList<HourSender> getPriviousAndNextMonthByDate(LocalDate date, String username, String token) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM", Locale.GERMAN);
+        LocalDate thisMonthDate = date;
+        LocalDate nextMonthDate = date.plusMonths(1);
+        LocalDate previousMonthDate = date.minusMonths(1);
+
+        String monthYearThisMonth = thisMonthDate.format(formatter);
+        String monthYearPreviousMonth = nextMonthDate.format(formatter);
+        String monthYearNextMonth = previousMonthDate.format(formatter);
+
+        List<HourSender> thisMonth = getAllKalenderEntrysOfUserInMonth(username, token, monthYearThisMonth);
+        List<HourSender> previousMonth = getAllKalenderEntrysOfUserInMonth(username, token, monthYearPreviousMonth);
+        List<HourSender> nextMonth = getAllKalenderEntrysOfUserInMonth(username, token, monthYearNextMonth);
+
+        if (thisMonth != null || nextMonth != null || previousMonth != null) {
+
+            ArrayList<HourSender> returnList = new ArrayList<>();
+
+            if (thisMonth != null) {
+                returnList.addAll(new ArrayList<>(thisMonth));
+            }
+            if (nextMonth != null) {
+                returnList.addAll(new ArrayList<>(nextMonth));
+            }
+            if (previousMonth != null) {
+                returnList.addAll(new ArrayList<>(previousMonth));
+            }
+
+            Collections.sort(returnList, Comparator.comparing(HourSender::getDate));
+            return returnList;
+        } else {
+            return null;
+        }
     }
 }

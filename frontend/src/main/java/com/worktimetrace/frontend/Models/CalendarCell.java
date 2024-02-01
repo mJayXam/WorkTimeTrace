@@ -3,40 +3,39 @@ package com.worktimetrace.frontend.Models;
 import java.time.LocalDate;
 
 public class CalendarCell {
-    private int day;
-    private int month;
-    private int year;
+    private LocalDate date;
     private boolean color;
+    private Double hourCount;
 
-    public CalendarCell (LocalDate date, boolean color) {
-        this.day = date.getDayOfMonth();
-        this.month = date.getMonthValue();
-        this.year = date.getYear();
+    public CalendarCell(LocalDate date, boolean color) {
+        this.date = date;
         this.color = color;
     }
 
-    public int getDay() {
-        return day;
+    public CalendarCell(LocalDate date, boolean color, Double hourCount) {
+        this.date = date;
+        this.color = color;
+        this.hourCount = hourCount;
     }
 
-    public void setDay(int day) {
-        this.day = day;
+    public LocalDate getDate() {
+        return date;
+    }
+    
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public int getDay() {
+        return date.getDayOfMonth();
     }
 
     public int getMonth() {
-        return month;
-    }
-
-    public void setMonth(int month) {
-        this.month = month;
+        return date.getMonthValue();
     }
 
     public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
+        return date.getYear();
     }
 
     public boolean getColor() {
@@ -46,4 +45,18 @@ public class CalendarCell {
     public void setColor(boolean color) {
         this.color = color;
     }
+
+    public Double getHourCount() {
+        return hourCount;
+    }
+
+    public void setHourCount(Double hourCount) {
+        this.hourCount = hourCount;
+    }
+
+    @Override
+    public String toString() {
+        return "CalendarCell [date=" + date + ", color=" + color + ", hourCount=" + hourCount + "]";
+    }
+
 }
