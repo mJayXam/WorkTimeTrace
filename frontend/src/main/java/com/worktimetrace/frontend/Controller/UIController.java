@@ -83,29 +83,43 @@ public class UIController {
     @PostMapping("/Registration")
     public String getRegistrationData(@ModelAttribute("user") User user, HttpSession session) {
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            String requestJsonRegistration = objectMapper.writeValueAsString(user);
-            ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
-                    urlM.getUserUrl()+"/auth/register", requestJsonRegistration);
+        if (!user.getPassword().replaceAll("\\s", "").equals("")) {
+            try {
+                String requestJsonRegistration = objectMapper.writeValueAsString(user);
+                ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
+                        urlM.getUserUrl() + "/auth/register", requestJsonRegistration);
 
-            HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
-            if (httpStatusCodeRegistration == HttpStatus.OK) {
-                LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
-                String requestJsonLogin = objectMapper.writeValueAsString(loginData);
-                ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
-                        urlM.getUserUrl()+"/auth/login", requestJsonLogin);
-                HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
-                if (httpStatusCodeLogin == HttpStatus.OK) {
-                    UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
-                    session.setAttribute("username", userToken.getUsername());
-                    session.setAttribute("token", userToken.getToken());
-                    session.setAttribute("loginSuccess", true);
+                HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
+                if (httpStatusCodeRegistration == HttpStatus.OK) {
+                    LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
+                    String requestJsonLogin = objectMapper.writeValueAsString(loginData);
+                    ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
+                            urlM.getUserUrl() + "/auth/login", requestJsonLogin);
+                    HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
+                    if (httpStatusCodeLogin == HttpStatus.OK) {
+                        UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
+                        session.setAttribute("username", userToken.getUsername());
+                        session.setAttribute("token", userToken.getToken());
+                        session.setAttribute("loginSuccess", true);
 
-                    return "redirect:/Kalender?month=0";
+                        return "redirect:/Kalender?month=0";
+                    }
                 }
+            } catch (HttpClientErrorException.Unauthorized unauthorizedException) {
+                session.setAttribute("registrationError", "Ungültiger Benutzername oder Passwort");
+                session.setAttribute("vorname", user.getFirstname());
+                session.setAttribute("nachname", user.getLastname());
+                session.setAttribute("benutzername", user.getUsername());
+                session.setAttribute("strasse", user.getStreet());
+                session.setAttribute("hausnr", user.getHousenumber());
+                session.setAttribute("postleitzahl", user.getZipcode());
+                session.setAttribute("stadt", user.getCity());
+                return "redirect:/Registration";
+            } catch (JsonProcessingException e) {
+                return "redirect:/Registration";
             }
-        } catch (HttpClientErrorException.Unauthorized unauthorizedException) {
-            session.setAttribute("registrationError", "Ungültiger Benutzername oder Passwort");
+        } else {
+            session.setAttribute("registrationError", "Passwort nicht akzeptiert");
             session.setAttribute("vorname", user.getFirstname());
             session.setAttribute("nachname", user.getLastname());
             session.setAttribute("benutzername", user.getUsername());
@@ -113,8 +127,6 @@ public class UIController {
             session.setAttribute("hausnr", user.getHousenumber());
             session.setAttribute("postleitzahl", user.getZipcode());
             session.setAttribute("stadt", user.getCity());
-            return "redirect:/Registration";
-        } catch (JsonProcessingException e) {
             return "redirect:/Registration";
         }
 
@@ -145,7 +157,7 @@ public class UIController {
         try {
             String requestJson = objectMapper.writeValueAsString(loginData);
             ResponseEntity<String> response = sendPostRequestToOtherService(
-                    urlM.getUserUrl()+"/auth/login", requestJson);
+                    urlM.getUserUrl() + "/auth/login", requestJson);
 
             HttpStatusCode httpStatusCode = response.getStatusCode();
 
@@ -296,7 +308,8 @@ public class UIController {
     }
 
     @PostMapping("/Export")
-    public void getExportPDF(@ModelAttribute("pdfExport") PDFExport pdfExport, Model model, HttpSession session, HttpServletResponse response) {
+    public void getExportPDF(@ModelAttribute("pdfExport") PDFExport pdfExport, Model model, HttpSession session,
+            HttpServletResponse response) {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
@@ -327,7 +340,7 @@ public class UIController {
 
         session.invalidate();
         return;
-        
+
     }
 
     @GetMapping("/Benutzerinformationen")
@@ -368,7 +381,7 @@ public class UIController {
 
     private User getUserInfo(String username, String token) {
         RestTemplate rt = new RestTemplate();
-        String url = urlM.getUserUrl()+"/user/info";
+        String url = urlM.getUserUrl() + "/user/info";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -396,7 +409,7 @@ public class UIController {
 
     private ResponseEntity<String> insertOneHourEntry(HourDate hour, User user, String username, String token) {
         HourSender hourSender = new HourSender(hour.getHour(), hour.getDate(), user.getId());
-        String url = urlM.getTimeUrl()+"/insertOne";
+        String url = urlM.getTimeUrl() + "/insertOne";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -426,7 +439,7 @@ public class UIController {
 
     private List<HourSender> getAllKalenderEntrysOfUserInMonth(String username, String token, String monthYear) {
         RestTemplate rt = new RestTemplate();
-        String url = urlM.getTimeUrl()+"/byNIDforMonth/" + monthYear;
+        String url = urlM.getTimeUrl() + "/byNIDforMonth/" + monthYear;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -456,9 +469,9 @@ public class UIController {
         }
     }
 
-    private  byte[] getExportPDF(String username, String token, String hourRate) {
+    private byte[] getExportPDF(String username, String token, String hourRate) {
         RestTemplate rt = new RestTemplate();
-        String url = urlM.getPdfUrl()+"/bill/" + hourRate;
+        String url = urlM.getPdfUrl() + "/bill/" + hourRate;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
