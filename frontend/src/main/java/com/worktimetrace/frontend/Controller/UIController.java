@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class UIController {
+
+    @Autowired
+    private UrlManager urlM;
 
     @GetMapping("/")
     public String showLandingPage(Model model, HttpSession session) {
@@ -82,14 +86,14 @@ public class UIController {
         try {
             String requestJsonRegistration = objectMapper.writeValueAsString(user);
             ResponseEntity<String> responseRegistration = sendPostRequestToOtherService(
-                    "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/register", requestJsonRegistration);
+                    urlM.getUserUrl()+"/auth/register", requestJsonRegistration);
 
             HttpStatusCode httpStatusCodeRegistration = responseRegistration.getStatusCode();
             if (httpStatusCodeRegistration == HttpStatus.OK) {
                 LoginData loginData = new LoginData(user.getUsername(), user.getPassword());
                 String requestJsonLogin = objectMapper.writeValueAsString(loginData);
                 ResponseEntity<String> responseLogin = sendPostRequestToOtherService(
-                        "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJsonLogin);
+                        urlM.getUserUrl()+"/auth/login", requestJsonLogin);
                 HttpStatusCode httpStatusCodeLogin = responseLogin.getStatusCode();
                 if (httpStatusCodeLogin == HttpStatus.OK) {
                     UserToken userToken = objectMapper.readValue(responseLogin.getBody(), UserToken.class);
@@ -141,7 +145,7 @@ public class UIController {
         try {
             String requestJson = objectMapper.writeValueAsString(loginData);
             ResponseEntity<String> response = sendPostRequestToOtherService(
-                    "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/auth/login", requestJson);
+                    urlM.getUserUrl()+"/auth/login", requestJson);
 
             HttpStatusCode httpStatusCode = response.getStatusCode();
 
@@ -183,7 +187,6 @@ public class UIController {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
-        System.out.println(token);
 
         if (loggedIn != null && loggedIn) {
             model.addAttribute("loggedIn", true);
@@ -248,7 +251,6 @@ public class UIController {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
-        System.out.println(hour.toString());
 
         User user = getUserInfo(username, token);
 
@@ -298,10 +300,8 @@ public class UIController {
         Boolean loggedIn = (Boolean) session.getAttribute("loginSuccess");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
-        System.out.println(pdfExport.toString());
 
         byte[] pdf = getExportPDF(username, token, Double.toString(pdfExport.getHourRate()));
-        System.out.println(pdf);
         if (pdf != null) {
             try {
                 response.setContentType("application/pdf");
@@ -368,7 +368,7 @@ public class UIController {
 
     private User getUserInfo(String username, String token) {
         RestTemplate rt = new RestTemplate();
-        String url = "https://usermanagementservice-dev-5rt6jcn4da-uc.a.run.app/user/info";
+        String url = urlM.getUserUrl()+"/user/info";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -396,7 +396,7 @@ public class UIController {
 
     private ResponseEntity<String> insertOneHourEntry(HourDate hour, User user, String username, String token) {
         HourSender hourSender = new HourSender(hour.getHour(), hour.getDate(), user.getId());
-        String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/insertOne";
+        String url = urlM.getTimeUrl()+"/insertOne";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -408,7 +408,6 @@ public class UIController {
 
         try {
             String requestJson = objectMapper.writeValueAsString(hourSender);
-            System.out.println(requestJson);
             HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, header);
 
             ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
@@ -425,44 +424,9 @@ public class UIController {
         return null;
     }
 
-    /*
-     * private List<HourSender> getAllKalenderEntrysOfUser(String username, String
-     * token) {
-     * RestTemplate rt = new RestTemplate();
-     * String url =
-     * "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNID";
-     * 
-     * HttpHeaders headers = new HttpHeaders();
-     * headers.setContentType(MediaType.APPLICATION_JSON);
-     * headers.add("username", username);
-     * headers.set("Authorization", "Bearer " + token);
-     * 
-     * HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-     * try {
-     * ResponseEntity<String> responseEntity = rt.exchange(url, HttpMethod.GET,
-     * requestEntity, String.class);
-     * 
-     * HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
-     * 
-     * if (httpStatusCode == HttpStatus.OK) {
-     * String jsonResponse = responseEntity.getBody();
-     * 
-     * ObjectMapper objectMapper = new ObjectMapper();
-     * HourSender[] hourSenders = objectMapper.readValue(jsonResponse,
-     * HourSender[].class);
-     * return Arrays.asList(hourSenders);
-     * } else {
-     * return null;
-     * }
-     * } catch (Exception e) {
-     * return null;
-     * }
-     * }
-     */
-
     private List<HourSender> getAllKalenderEntrysOfUserInMonth(String username, String token, String monthYear) {
         RestTemplate rt = new RestTemplate();
-        String url = "https://timemanagementservice-dev-5rt6jcn4da-uc.a.run.app/byNIDforMonth/" + monthYear;
+        String url = urlM.getTimeUrl()+"/byNIDforMonth/" + monthYear;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -494,7 +458,7 @@ public class UIController {
 
     private  byte[] getExportPDF(String username, String token, String hourRate) {
         RestTemplate rt = new RestTemplate();
-        String url = "https://pdfexportservice-dev-5rt6jcn4da-uc.a.run.app/bill/" + hourRate;
+        String url = urlM.getPdfUrl()+"/bill/" + hourRate;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
